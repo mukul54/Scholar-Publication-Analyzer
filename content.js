@@ -35,7 +35,7 @@
           isAnalyzing = false;
           console.log("✅ Analysis completed successfully");
           console.log("📤 About to send response:", analysisData);
-          sendResponse(analysisData); // Send the enhanced structure
+          sendResponse(analysisData);
         })
         .catch((error) => {
           isAnalyzing = false;
@@ -51,6 +51,13 @@
     try {
       console.log("🚀 === STARTING COMPLETE ANALYSIS ===");
 
+      // Validate we're on the right page type
+      if (!isValidScholarProfilePage()) {
+        throw new Error(
+          "This page doesn't appear to be a Google Scholar profile with publications. Please navigate to a profile page like: scholar.google.com/citations?user=..."
+        );
+      }
+
       // Step 1: Count initial publications
       const initialCount = document.querySelectorAll("tr.gsc_a_tr").length;
       console.log(`📊 Initial publications visible: ${initialCount}`);
@@ -58,7 +65,7 @@
       // Quick validation
       if (initialCount === 0) {
         throw new Error(
-          "No publications found on this page. Make sure you are on a Google Scholar profile page with publications."
+          "No publications found on this page. Make sure you are on the 'ARTICLES' tab of a Google Scholar profile page with publications."
         );
       }
 
@@ -73,7 +80,7 @@
 
       if (finalCount === initialCount) {
         console.log(
-          "ℹ️ No additional publications loaded - either all were already visible or pagination failed"
+          "ℹ️ No additional publications loaded - either all were already visible or no 'Show more' button found"
         );
       } else {
         console.log(
@@ -102,7 +109,7 @@
       // Validation
       if (venueAnalysisResult.venues.length === 0) {
         throw new Error(
-          "No venues could be extracted from the publications. Please check the page format."
+          "No venues could be extracted from the publications. Please check if you're on the ARTICLES tab of a Scholar profile."
         );
       }
 
@@ -134,58 +141,38 @@
     }
   }
 
-  // Debug function to see what buttons exist on the page
-  function debugPageButtons() {
-    console.log("=== DEBUGGING PAGE BUTTONS ===");
+  // Validate that we're on a Scholar profile page with publications
+  function isValidScholarProfilePage() {
+    const url = window.location.href;
 
-    // Check all buttons on the page
-    const allButtons = document.querySelectorAll(
-      'button, a[role="button"], span[role="button"]'
-    );
-    console.log(`Found ${allButtons.length} clickable elements on page`);
-
-    allButtons.forEach((btn, index) => {
-      const text = btn.textContent.trim();
-      const id = btn.id;
-      const classes = btn.className;
-      const onclick = btn.getAttribute("onclick");
-
-      if (
-        text.toLowerCase().includes("more") ||
-        text.toLowerCase().includes("show") ||
-        id.includes("more") ||
-        onclick?.includes("more")
-      ) {
-        console.log(`Potential "Show More" button ${index}:`, {
-          text: text,
-          id: id,
-          classes: classes,
-          onclick: onclick,
-          visible: btn.offsetParent !== null,
-          disabled: btn.disabled,
-        });
-      }
-    });
-
-    // Check specific elements that might be the show more button
-    const gscButton = document.querySelector("#gsc_bpf_more");
-    if (gscButton) {
-      console.log("Found #gsc_bpf_more button:", {
-        text: gscButton.textContent,
-        visible: gscButton.offsetParent !== null,
-        disabled: gscButton.disabled,
-      });
-    } else {
-      console.log("No #gsc_bpf_more button found");
+    // Must be on scholar.google domain
+    if (!url.includes("scholar.google.")) {
+      return false;
     }
 
-    console.log("=== END DEBUG ===");
+    // Must be on citations page (not individual article view)
+    if (!url.includes("/citations?")) {
+      return false;
+    }
+
+    // Must not be on individual article view
+    if (url.includes("view_op=view_citation")) {
+      return false;
+    }
+
+    // Should be on the main profile or articles list
+    return (
+      url.includes("user=") &&
+      (url.includes("view_op=list_works") ||
+        !url.includes("view_op=") ||
+        url.includes("view_op=list_colleagues"))
+    );
   }
 
   // Function to load all publications by handling pagination
   async function loadAllPublications() {
     let attempts = 0;
-    const maxAttempts = 50;
+    const maxAttempts = 100; // Increased for profiles with many papers
     let publicationsBefore = document.querySelectorAll("tr.gsc_a_tr").length;
 
     console.log(
@@ -193,7 +180,7 @@
     );
 
     while (attempts < maxAttempts) {
-      // Look for "Show more" button
+      // Look for "Show more" button with improved detection
       let showMoreButton = await findShowMoreButton();
 
       if (!showMoreButton) {
@@ -204,18 +191,32 @@
       }
 
       console.log(`📍 Attempt ${attempts + 1}: Clicking show more button`);
+      console.log(`🔍 Button details:`, {
+        text: showMoreButton.textContent.trim(),
+        id: showMoreButton.id,
+        className: showMoreButton.className,
+        tagName: showMoreButton.tagName,
+      });
 
       try {
+        // Prevent default link behavior and navigation
+        if (showMoreButton.tagName === "A") {
+          showMoreButton.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+          });
+        }
+
         // Click the button
         showMoreButton.click();
 
         // Wait a moment for the click to register and DOM to start updating
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1500));
 
         // Wait for new publications to load
         const newCount = await waitForNewPublications(
           publicationsBefore,
-          15000
+          20000 // Increased timeout
         );
 
         if (newCount === publicationsBefore) {
@@ -232,7 +233,7 @@
         attempts++;
 
         // Add longer delay between attempts to avoid overwhelming the server
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       } catch (error) {
         console.log("❌ Error during pagination:", error);
         break;
@@ -245,85 +246,117 @@
     );
 
     // Add a final wait to ensure DOM is completely stable
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     return finalCount;
   }
 
-  // Enhanced function to find the show more button
+  // Enhanced function to find the show more button with stricter criteria
   async function findShowMoreButton() {
     // Wait a moment for any dynamic content to settle
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Try multiple selector strategies
-    const selectors = [
-      "#gsc_bpf_more",
+    console.log("🔍 Looking for 'Show more' button...");
+
+    // First, try the most specific selector for Google Scholar's "Show more" button
+    const specificSelectors = [
+      "#gsc_bpf_more", // The most common ID for show more button
       "button#gsc_bpf_more",
-      ".gsc_pgn_pnx",
-      'button[onclick*="gsc_pgn"]',
-      'button[onclick*="more"]',
-      ".gsc_pgn button",
+      ".gsc_pgn_pnx", // Pagination next button
     ];
 
-    for (const selector of selectors) {
+    for (const selector of specificSelectors) {
       const button = document.querySelector(selector);
-      if (button) {
-        const isVisible = button.offsetParent !== null;
-        const isEnabled = !button.disabled;
-        const hasContent = button.textContent.trim().length > 0;
-
-        console.log(`🔍 Checking button with selector ${selector}:`, {
-          visible: isVisible,
-          enabled: isEnabled,
-          hasContent: hasContent,
-          text: button.textContent.trim(),
-        });
-
-        if (isVisible && isEnabled && hasContent) {
-          console.log(
-            `✅ Found valid show more button with selector: ${selector}`
-          );
-          return button;
-        }
+      if (button && isValidShowMoreButton(button)) {
+        console.log(
+          `✅ Found valid show more button with selector: ${selector}`
+        );
+        return button;
       }
     }
 
-    // Text-based search as fallback
-    const allButtons = Array.from(
-      document.querySelectorAll('button, a, span[role="button"]')
+    // Secondary approach: look for buttons with "Show more" text
+    const allElements = Array.from(
+      document.querySelectorAll(
+        'button, span[role="button"], div[role="button"]'
+      )
     );
-    const showMoreButton = allButtons.find((btn) => {
-      const text = btn.textContent.toLowerCase().trim();
-      const isVisible = btn.offsetParent !== null;
-      const isEnabled = !btn.disabled;
-      const hasShowMore =
-        text.includes("show more") || text.includes("more") || text === "show";
 
-      if (hasShowMore) {
-        console.log(`🔍 Text-based button check:`, {
-          text: text,
-          visible: isVisible,
-          enabled: isEnabled,
-          hasShowMore: hasShowMore,
-        });
+    for (const element of allElements) {
+      const text = element.textContent.toLowerCase().trim();
+
+      // Be very specific about what constitutes a "Show more" button
+      if (
+        (text === "show more" ||
+          text === "more" ||
+          text.includes("show more")) &&
+        isValidShowMoreButton(element)
+      ) {
+        console.log(
+          `✅ Found show more button via text search: "${element.textContent.trim()}"`
+        );
+        return element;
       }
+    }
 
-      return hasShowMore && isVisible && isEnabled;
+    // Last resort: look for clickable elements with onclick handlers that might load more content
+    const onclickElements = Array.from(
+      document.querySelectorAll(
+        '[onclick*="gsc"], [onclick*="more"], [onclick*="next"]'
+      )
+    );
+
+    for (const element of onclickElements) {
+      if (
+        isValidShowMoreButton(element) &&
+        (element.onclick?.toString().includes("gsc") ||
+          element.getAttribute("onclick")?.includes("gsc"))
+      ) {
+        console.log(
+          `✅ Found show more button via onclick: "${element.textContent.trim()}"`
+        );
+        return element;
+      }
+    }
+
+    console.log(`❌ No valid show more button found`);
+    return null;
+  }
+
+  // Helper function to validate if an element is actually a show more button
+  function isValidShowMoreButton(element) {
+    const isVisible =
+      element.offsetParent !== null &&
+      element.offsetWidth > 0 &&
+      element.offsetHeight > 0;
+    const isEnabled = !element.disabled;
+    const text = element.textContent.toLowerCase().trim();
+    const hasValidText =
+      text.includes("show more") ||
+      text.includes("more") ||
+      text === "show" ||
+      element.id === "gsc_bpf_more";
+
+    // Additional check: make sure it's not a paper title link
+    const isNotPaperLink =
+      !element.closest("td.gsc_a_t") &&
+      !element.classList.contains("gsc_a_at") &&
+      !element.href?.includes("view_citation");
+
+    console.log(`🔍 Button validation for "${text}":`, {
+      visible: isVisible,
+      enabled: isEnabled,
+      hasValidText: hasValidText,
+      isNotPaperLink: isNotPaperLink,
+      id: element.id,
+      className: element.className,
     });
 
-    if (showMoreButton) {
-      console.log(
-        `✅ Found show more button via text search: "${showMoreButton.textContent.trim()}"`
-      );
-    } else {
-      console.log(`❌ No valid show more button found`);
-    }
-
-    return showMoreButton || null;
+    return isVisible && isEnabled && hasValidText && isNotPaperLink;
   }
 
   // Wait for new publications to be loaded after clicking "Show more"
-  function waitForNewPublications(previousCount, timeout = 10000) {
+  function waitForNewPublications(previousCount, timeout = 15000) {
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
       let checkCount = 0;
@@ -350,13 +383,13 @@
           resolve(currentCount);
         } else {
           // Continue waiting, check more frequently at first
-          const delay = checkCount < 10 ? 100 : 500;
+          const delay = checkCount < 10 ? 200 : 1000;
           setTimeout(checkForNewPublications, delay);
         }
       };
 
       // Start checking after a short delay to allow for loading
-      setTimeout(checkForNewPublications, 300);
+      setTimeout(checkForNewPublications, 500);
     });
   }
 
@@ -431,9 +464,9 @@
     }));
     venueArray.sort((a, b) => b.count - a.count);
 
-    console.debug("📋 Raw to Normalized Venue Mapping:");
+    console.log("📋 Raw to Normalized Venue Mapping:");
     Object.entries(venueMappings).forEach(([raw, mapped]) => {
-      console.debug(`🔹 "${raw}" => "${mapped}"`);
+      console.log(`🔹 "${raw}" => "${mapped}"`);
     });
 
     return {
@@ -907,4 +940,11 @@
 
     return simplifiedVenue || null;
   }
+
+  // Add cleanup when page is about to unload
+  window.addEventListener("beforeunload", function () {
+    console.log("🧹 Page unloading - cleaning up scholar analyzer");
+    isAnalyzing = false;
+    window.scholarAnalyzerRunning = false;
+  });
 })();

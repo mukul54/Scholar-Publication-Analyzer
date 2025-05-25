@@ -79,30 +79,68 @@ document.addEventListener("DOMContentLoaded", function () {
     const url = tabs[0].url;
     const urlObj = new URL(url);
 
-    console.log("Current page:", urlObj.hostname, urlObj.pathname);
+    console.log(
+      "Current page:",
+      urlObj.hostname,
+      urlObj.pathname,
+      urlObj.search
+    );
 
     // Check if we're on a valid Scholar domain
     if (!allowedDomains.includes(urlObj.hostname)) {
-      document.getElementById("not-on-profile").style.display = "block";
-      document.getElementById("profile-content").style.display = "none";
-      document.getElementById("not-on-profile").innerHTML = `
+      showNotOnProfileMessage(`
         <p><strong>This extension only works on Google Scholar pages.</strong></p>
         <p>Please navigate to a Google Scholar profile page to use this extension.</p>
         <p>Example: <code>scholar.google.com/citations?user=...</code></p>
         <p><small>Current page: ${urlObj.hostname}</small></p>
-      `;
+      `);
       return;
     }
 
-    // Check if we're on a citations/profile page (not just search results)
+    // Check if we're on a citations page
     if (!urlObj.pathname.startsWith("/citations")) {
-      document.getElementById("not-on-profile").style.display = "block";
-      document.getElementById("profile-content").style.display = "none";
-      document.getElementById("not-on-profile").innerHTML = `
+      showNotOnProfileMessage(`
         <p><strong>Please navigate to a Scholar profile page.</strong></p>
         <p>This extension analyzes individual researcher profiles, not search results.</p>
         <p>Look for URLs like: <code>scholar.google.com/citations?user=...</code></p>
-      `;
+      `);
+      return;
+    }
+
+    // Check if we're on an individual article view
+    if (urlObj.search.includes("view_op=view_citation")) {
+      showNotOnProfileMessage(`
+        <p><strong>You're viewing an individual article.</strong></p>
+        <p>Please go back to the researcher's main profile page to analyze all publications.</p>
+        <button id="go-back-btn" class="analyze-btn" style="margin-top: 10px;">
+          ← Go Back to Profile
+        </button>
+      `);
+
+      // Add click handler for the go back button
+      setTimeout(() => {
+        const goBackBtn = document.getElementById("go-back-btn");
+        if (goBackBtn) {
+          goBackBtn.addEventListener("click", function () {
+            // Navigate back to the main profile page
+            const profileUrl = url
+              .split("&view_op=view_citation")[0]
+              .split("?view_op=view_citation")[0];
+            chrome.tabs.update(tabs[0].id, { url: profileUrl });
+            window.close();
+          });
+        }
+      }, 100);
+      return;
+    }
+
+    // Check if we're on a valid profile page (should have user parameter)
+    if (!urlObj.search.includes("user=")) {
+      showNotOnProfileMessage(`
+        <p><strong>Please navigate to a Scholar profile page.</strong></p>
+        <p>This extension analyzes individual researcher profiles.</p>
+        <p>Look for URLs with a user parameter like: <code>scholar.google.com/citations?user=ABC123</code></p>
+      `);
       return;
     }
 
@@ -118,6 +156,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const showMoreBtn = document.getElementById("show-more-btn");
     showMoreBtn.addEventListener("click", showAllVenues);
   });
+
+  function showNotOnProfileMessage(html) {
+    document.getElementById("not-on-profile").innerHTML = html;
+    document.getElementById("not-on-profile").style.display = "block";
+    document.getElementById("profile-content").style.display = "none";
+  }
 
   // Store venue data globally for show more/less functionality
   let allVenueData = [];
@@ -159,10 +203,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
           }
 
-          // Immediately show step 1 (loading publications)
+          // Show step 1 (loading publications)
           loadingDiv.innerHTML = `
             <p>🔄 Step 1: Loading all publications...</p>
-            <p><small>Automatically clicking "Show More" to load all publications</small></p>
           `;
 
           // After a brief moment, update to step 2
@@ -197,15 +240,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (response && response.success && response.venues) {
                   displayResults(response);
                 } else if (response && response.error) {
-                  showError(`Analysis error: ${response.error}`);
+                  showError(response.error);
                 } else {
                   showError(
-                    'Error analyzing profile. Please ensure the page is fully loaded and try again. You can also try manually clicking "SHOW MORE" on the Scholar page first.'
+                    'Error analyzing profile. Please ensure you are on the "ARTICLES" tab of a Google Scholar profile page with publications visible.'
                   );
                 }
               }
             );
-          }, 800);
+          }, 1000);
         }
       );
     });
@@ -214,7 +257,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to show error messages
   function showError(message) {
     const errorDiv = document.getElementById("error");
-    errorDiv.textContent = message;
+    errorDiv.innerHTML = `
+      <div>${message}</div>
+      <div style="margin-top: 10px; font-size: 12px; color: #666;">
+        <strong>Troubleshooting tips:</strong><br>
+        • Make sure you're on the "ARTICLES" tab of a Scholar profile<br>
+        • Refresh the page and try again<br>
+        • Check that publications are visible on the page
+      </div>
+    `;
     errorDiv.style.display = "block";
 
     // Re-enable analyze button if it was disabled
@@ -238,7 +289,9 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     if (!venueData || venueData.length === 0) {
-      showError("No publication venues found on this profile.");
+      showError(
+        "No publication venues found on this profile. Make sure you're on the ARTICLES tab with visible publications."
+      );
       return;
     }
 

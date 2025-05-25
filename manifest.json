@@ -3,7 +3,10 @@
   "name": "Where Do I Publish - Scholar Venue Analyzer",
   "version": "2.0",
   "description": "Analyzes and groups publication venues from Google Scholar profiles with automatic pagination handling and enhanced reporting",
-  "permissions": ["activeTab", "scripting"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["activeTab", "scripting", "tabs"],
   "host_permissions": [
     "https://scholar.google.com/*",
     "https://scholar.google.ae/*",
