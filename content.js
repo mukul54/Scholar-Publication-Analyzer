@@ -169,19 +169,19 @@
     );
   }
 
-  // Function to load all publications by handling pagination
+  // Optimized function to load all publications by handling pagination
   async function loadAllPublications() {
     let attempts = 0;
-    const maxAttempts = 100; // Increased for profiles with many papers
+    const maxAttempts = 200; // Higher limit for large profiles
     let publicationsBefore = document.querySelectorAll("tr.gsc_a_tr").length;
 
     console.log(
-      `🔄 Starting pagination with ${publicationsBefore} publications`
+      `🔄 Starting fast pagination with ${publicationsBefore} publications`
     );
 
     while (attempts < maxAttempts) {
-      // Look for "Show more" button with improved detection
-      let showMoreButton = await findShowMoreButton();
+      // Look for "Show more" button with faster detection
+      let showMoreButton = findShowMoreButtonSync();
 
       if (!showMoreButton) {
         console.log(
@@ -191,12 +191,6 @@
       }
 
       console.log(`📍 Attempt ${attempts + 1}: Clicking show more button`);
-      console.log(`🔍 Button details:`, {
-        text: showMoreButton.textContent.trim(),
-        id: showMoreButton.id,
-        className: showMoreButton.className,
-        tagName: showMoreButton.tagName,
-      });
 
       try {
         // Prevent default link behavior and navigation
@@ -210,13 +204,10 @@
         // Click the button
         showMoreButton.click();
 
-        // Wait a moment for the click to register and DOM to start updating
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-
-        // Wait for new publications to load
-        const newCount = await waitForNewPublications(
+        // Wait for new publications to load with optimized timing
+        const newCount = await waitForNewPublicationsOptimized(
           publicationsBefore,
-          20000 // Increased timeout
+          10000 // Reduced timeout but smarter checking
         );
 
         if (newCount === publicationsBefore) {
@@ -232,8 +223,8 @@
         publicationsBefore = newCount;
         attempts++;
 
-        // Add longer delay between attempts to avoid overwhelming the server
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        // Minimal delay between attempts - just enough for DOM stability
+        await new Promise((resolve) => setTimeout(resolve, 300));
       } catch (error) {
         console.log("❌ Error during pagination:", error);
         break;
@@ -242,23 +233,18 @@
 
     const finalCount = document.querySelectorAll("tr.gsc_a_tr").length;
     console.log(
-      `🏁 Pagination complete. Final count: ${finalCount} publications after ${attempts} attempts`
+      `🏁 Fast pagination complete. Final count: ${finalCount} publications after ${attempts} attempts`
     );
 
-    // Add a final wait to ensure DOM is completely stable
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    // Minimal final wait
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     return finalCount;
   }
 
-  // Enhanced function to find the show more button with stricter criteria
-  async function findShowMoreButton() {
-    // Wait a moment for any dynamic content to settle
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    console.log("🔍 Looking for 'Show more' button...");
-
-    // First, try the most specific selector for Google Scholar's "Show more" button
+  // Optimized synchronous function to find the show more button
+  function findShowMoreButtonSync() {
+    // Try the most specific selector first
     const specificSelectors = [
       "#gsc_bpf_more", // The most common ID for show more button
       "button#gsc_bpf_more",
@@ -267,68 +253,46 @@
 
     for (const selector of specificSelectors) {
       const button = document.querySelector(selector);
-      if (button && isValidShowMoreButton(button)) {
-        console.log(
-          `✅ Found valid show more button with selector: ${selector}`
-        );
+      if (button && isValidShowMoreButtonFast(button)) {
         return button;
       }
     }
 
-    // Secondary approach: look for buttons with "Show more" text
-    const allElements = Array.from(
-      document.querySelectorAll(
-        'button, span[role="button"], div[role="button"]'
-      )
+    // Fast text-based search
+    const allButtons = document.querySelectorAll(
+      'button, span[role="button"], div[role="button"]'
     );
 
-    for (const element of allElements) {
+    for (const element of allButtons) {
       const text = element.textContent.toLowerCase().trim();
 
-      // Be very specific about what constitutes a "Show more" button
       if (
         (text === "show more" ||
           text === "more" ||
           text.includes("show more")) &&
-        isValidShowMoreButton(element)
+        isValidShowMoreButtonFast(element)
       ) {
-        console.log(
-          `✅ Found show more button via text search: "${element.textContent.trim()}"`
-        );
         return element;
       }
     }
 
-    // Last resort: look for clickable elements with onclick handlers that might load more content
-    const onclickElements = Array.from(
-      document.querySelectorAll(
-        '[onclick*="gsc"], [onclick*="more"], [onclick*="next"]'
-      )
+    // Quick onclick check
+    const onclickElements = document.querySelectorAll(
+      '[onclick*="gsc"], [onclick*="more"]'
     );
 
     for (const element of onclickElements) {
-      if (
-        isValidShowMoreButton(element) &&
-        (element.onclick?.toString().includes("gsc") ||
-          element.getAttribute("onclick")?.includes("gsc"))
-      ) {
-        console.log(
-          `✅ Found show more button via onclick: "${element.textContent.trim()}"`
-        );
+      if (isValidShowMoreButtonFast(element)) {
         return element;
       }
     }
 
-    console.log(`❌ No valid show more button found`);
     return null;
   }
 
-  // Helper function to validate if an element is actually a show more button
-  function isValidShowMoreButton(element) {
-    const isVisible =
-      element.offsetParent !== null &&
-      element.offsetWidth > 0 &&
-      element.offsetHeight > 0;
+  // Fast validation function
+  function isValidShowMoreButtonFast(element) {
+    const isVisible = element.offsetParent !== null;
     const isEnabled = !element.disabled;
     const text = element.textContent.toLowerCase().trim();
     const hasValidText =
@@ -337,137 +301,109 @@
       text === "show" ||
       element.id === "gsc_bpf_more";
 
-    // Additional check: make sure it's not a paper title link
+    // Quick check: make sure it's not a paper title link
     const isNotPaperLink =
       !element.closest("td.gsc_a_t") &&
       !element.classList.contains("gsc_a_at") &&
       !element.href?.includes("view_citation");
 
-    console.log(`🔍 Button validation for "${text}":`, {
-      visible: isVisible,
-      enabled: isEnabled,
-      hasValidText: hasValidText,
-      isNotPaperLink: isNotPaperLink,
-      id: element.id,
-      className: element.className,
-    });
-
     return isVisible && isEnabled && hasValidText && isNotPaperLink;
   }
 
-  // Wait for new publications to be loaded after clicking "Show more"
-  function waitForNewPublications(previousCount, timeout = 15000) {
-    return new Promise((resolve, reject) => {
+  // Optimized wait function for new publications with faster checking
+  function waitForNewPublicationsOptimized(previousCount, timeout = 8000) {
+    return new Promise((resolve) => {
       const startTime = Date.now();
       let checkCount = 0;
+      let consecutiveFailures = 0;
 
       const checkForNewPublications = () => {
         checkCount++;
         const currentCount = document.querySelectorAll("tr.gsc_a_tr").length;
 
-        console.log(
-          `Check ${checkCount}: Previous: ${previousCount}, Current: ${currentCount}`
-        );
-
         if (currentCount > previousCount) {
-          // New publications loaded
-          console.log(
-            `Success! Loaded ${currentCount - previousCount} new publications`
-          );
+          // New publications loaded - success!
           resolve(currentCount);
-        } else if (Date.now() - startTime > timeout) {
-          // Timeout - assume no more publications to load
-          console.log(
-            `Timeout after ${timeout}ms - no new publications loaded`
-          );
-          resolve(currentCount);
-        } else {
-          // Continue waiting, check more frequently at first
-          const delay = checkCount < 10 ? 200 : 1000;
-          setTimeout(checkForNewPublications, delay);
+          return;
         }
+
+        // Check if we've exceeded timeout
+        if (Date.now() - startTime > timeout) {
+          resolve(currentCount); // Timeout - return current count
+          return;
+        }
+
+        consecutiveFailures++;
+
+        // Progressive delay: start fast, get slower if no changes
+        let delay;
+        if (consecutiveFailures < 5) {
+          delay = 50; // Very fast initial checks
+        } else if (consecutiveFailures < 15) {
+          delay = 200; // Medium speed
+        } else {
+          delay = 500; // Slower for final checks
+        }
+
+        setTimeout(checkForNewPublications, delay);
       };
 
-      // Start checking after a short delay to allow for loading
-      setTimeout(checkForNewPublications, 500);
+      // Start checking immediately
+      checkForNewPublications();
     });
   }
 
-  // Extract venue data from publication list with advanced normalization
+  // Optimized venue data extraction - removed redundant operations
   function extractVenueData() {
-    let venueMappings = {};
-    // Get all publication entries currently visible
     const publications = document.querySelectorAll("tr.gsc_a_tr");
     console.log(
-      `🔍 EXTRACTING VENUES: Found ${publications.length} total publications to analyze`
+      `🔍 FAST EXTRACTION: Processing ${publications.length} publications`
     );
 
-    // Initialize venue counters
-    let venues = {};
+    const venues = {};
     let processedCount = 0;
     let skippedCount = 0;
 
-    // Process each publication
+    // Batch process publications for better performance
     publications.forEach((pub, index) => {
-      // The venue is typically in the third column (.gs_gray elements)
+      // Fast venue element detection
       const grayElements = pub.querySelectorAll(".gs_gray");
-      let venueElement = null;
+      let venueElement;
 
-      // Try different approaches to find the venue
       if (grayElements.length >= 2) {
-        venueElement = grayElements[1]; // Usually the second .gs_gray element
+        venueElement = grayElements[1];
       } else if (grayElements.length === 1) {
         venueElement = grayElements[0];
-      }
-
-      // Alternative approach - look for venue in specific positions
-      if (!venueElement) {
+      } else {
         venueElement =
-          pub.querySelector("td:nth-child(3) .gs_gray") ||
-          pub.querySelector(".gsc_a_j") ||
-          pub.querySelector(".gs_gray");
+          pub.querySelector(".gsc_a_j") || pub.querySelector(".gs_gray");
       }
 
       if (venueElement) {
-        // Extract venue name
-        let venueText = venueElement.textContent.trim();
-        let normalizedVenue = normalizeVenue(venueText);
-
-        // Track the mapping for later review
-        if (!venueMappings[venueText]) {
-          venueMappings[venueText] = normalizedVenue || "UNMAPPED";
-        }
+        const venueText = venueElement.textContent.trim();
+        const normalizedVenue = normalizeVenue(venueText);
 
         if (normalizedVenue) {
           venues[normalizedVenue] = (venues[normalizedVenue] || 0) + 1;
           processedCount++;
         } else {
-          console.log(`⚠️ Venue not normalized (${index + 1}):`, venueText);
           skippedCount++;
         }
       } else {
-        console.log(`⚠️ No venue found for publication ${index + 1}`);
         skippedCount++;
       }
     });
 
-    console.log(`✅ VENUE EXTRACTION COMPLETE:`);
-    console.log(`   📊 Total publications found: ${publications.length}`);
-    console.log(`   ✅ Successfully processed: ${processedCount}`);
-    console.log(`   ⚠️ Skipped (no venue): ${skippedCount}`);
-    console.log(`   🎯 Unique venues found: ${Object.keys(venues).length}`);
+    console.log(
+      `✅ FAST EXTRACTION COMPLETE: ${processedCount} processed, ${skippedCount} skipped, ${
+        Object.keys(venues).length
+      } unique`
+    );
 
     // Convert to array and sort by count
-    const venueArray = Object.entries(venues).map(([venue, count]) => ({
-      venue,
-      count,
-    }));
-    venueArray.sort((a, b) => b.count - a.count);
-
-    console.debug("📋 Raw to Normalized Venue Mapping:");
-    Object.entries(venueMappings).forEach(([raw, mapped]) => {
-      console.debug(`🔹 "${raw}" => "${mapped}"`);
-    });
+    const venueArray = Object.entries(venues)
+      .map(([venue, count]) => ({ venue, count }))
+      .sort((a, b) => b.count - a.count);
 
     return {
       venues: venueArray,
