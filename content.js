@@ -464,9 +464,9 @@
     }));
     venueArray.sort((a, b) => b.count - a.count);
 
-    console.log("📋 Raw to Normalized Venue Mapping:");
+    console.debug("📋 Raw to Normalized Venue Mapping:");
     Object.entries(venueMappings).forEach(([raw, mapped]) => {
-      console.log(`🔹 "${raw}" => "${mapped}"`);
+      console.debug(`🔹 "${raw}" => "${mapped}"`);
     });
 
     return {
@@ -487,11 +487,22 @@
     // Remove trailing ellipsis and clean up
     venueText = venueText.replace(/…$/, "").trim();
 
-    // Remove year citations and volume/issue numbers - be more careful not to remove important text
+    // Enhanced preprocessing for better pattern matching
+    // Remove year citations in various formats - be more aggressive but careful
     venueText = venueText.replace(/\s*,\s*\d{4}(\s|$)/, " ");
+    venueText = venueText.replace(/\s*\d{4}\s*$/, ""); // Year at the end
+    venueText = venueText.replace(/^\d{4}\s+/, ""); // Year at the beginning
+
+    // Remove volume/issue numbers and page numbers
     venueText = venueText.replace(/\s*,\s*\d+(\s*\(\d+\))?(\s|$)/, " ");
     venueText = venueText.replace(/\s*,\s*pp?\s*[\d-]+/i, "");
     venueText = venueText.replace(/\s*,\s*\d+-\d+\s*$/, "");
+
+    // Remove common publisher prefixes that might interfere with matching
+    venueText = venueText.replace(
+      /^(proceedings of the |proceedings of |proceedings )/i,
+      ""
+    );
 
     // Clean up extra whitespace
     venueText = venueText.replace(/\s+/g, " ").trim();
@@ -505,29 +516,47 @@
     // Major conferences and journals patterns (comprehensive)
 
     // ===== COMPUTER VISION CONFERENCES =====
-    // CVPR - various forms
+    // CVPR - various forms (enhanced with more specific patterns)
     if (
       /computer vision and pattern recognition|cvpr|cvf.*?computer vision and pattern|proceedings.*?cvpr|ieee.*?cvf.*?computer vision and pattern recognition/i.test(
+        lowerVenue
+      ) ||
+      /ieee.*?computer.*?society.*?conference.*?computer vision and pattern/i.test(
+        lowerVenue
+      ) ||
+      /proceedings.*?ieee.*?conference.*?computer vision and pattern/i.test(
+        lowerVenue
+      ) ||
+      /ieee.*?conference.*?computer vision and pattern/i.test(lowerVenue) ||
+      /\d{4}.*?proceedings.*?ieee.*?conference.*?computer vision and pattern/i.test(
+        lowerVenue
+      ) ||
+      /\d{4}.*?ieee.*?computer.*?society.*?conference.*?computer vision/i.test(
         lowerVenue
       )
     ) {
       return isWorkshop ? "CVPR Workshop" : "CVPR";
     }
 
-    // ICCV - various forms including the full IEEE title
+    // ICCV - various forms including the full IEEE title (enhanced)
     if (
       /international conference on computer vision|iccv|proceedings.*?iccv|ieee.*?international conference on computer vision/i.test(
+        lowerVenue
+      ) ||
+      /ieee.*?international.*?conference.*?computer vision/i.test(lowerVenue) ||
+      /proceedings.*?ieee.*?international.*?conference.*?computer vision/i.test(
         lowerVenue
       )
     ) {
       return isWorkshop ? "ICCV Workshop" : "ICCV";
     }
 
-    // ECCV - European Conference on Computer Vision
+    // ECCV - European Conference on Computer Vision (enhanced)
     if (
       /european conference on computer vision|eccv|proceedings.*?eccv/i.test(
         lowerVenue
-      )
+      ) ||
+      /european.*?conference.*?computer vision/i.test(lowerVenue)
     ) {
       return isWorkshop ? "ECCV Workshop" : "ECCV";
     }
@@ -717,11 +746,15 @@
     }
 
     // ===== MEDICAL IMAGING CONFERENCES =====
-    // MICCAI - Medical Image Computing and Computer-Assisted Intervention
+    // MICCAI - Medical Image Computing and Computer-Assisted Intervention (enhanced)
     if (
       /medical image computing and computer.assisted intervention|miccai/i.test(
         lowerVenue
-      )
+      ) ||
+      /international conference on medical image computing and computer.assisted/i.test(
+        lowerVenue
+      ) ||
+      /medical image computing and computer.assisted/i.test(lowerVenue)
     ) {
       return isWorkshop ? "MICCAI Workshop" : "MICCAI";
     }
@@ -908,6 +941,35 @@
 
       // Generic workshop if we can't identify the main conference
       return "Workshop";
+    }
+
+    // ===== ADDITIONAL PATTERN MATCHING FOR COMMON ISSUES =====
+
+    // Catch any remaining CVPR variants that might have slipped through
+    if (
+      /computer vision.*pattern/i.test(lowerVenue) &&
+      /ieee|conference|proceedings/i.test(lowerVenue)
+    ) {
+      return isWorkshop ? "CVPR Workshop" : "CVPR";
+    }
+
+    // Catch any remaining ICCV variants
+    if (
+      /international.*computer vision/i.test(lowerVenue) &&
+      /ieee|conference|proceedings/i.test(lowerVenue) &&
+      !/pattern/i.test(lowerVenue)
+    ) {
+      return isWorkshop ? "ICCV Workshop" : "ICCV";
+    }
+
+    // Catch any remaining ECCV variants
+    if (/european.*computer vision/i.test(lowerVenue)) {
+      return isWorkshop ? "ECCV Workshop" : "ECCV";
+    }
+
+    // Catch any remaining MICCAI variants
+    if (/medical.*image.*computing/i.test(lowerVenue)) {
+      return isWorkshop ? "MICCAI Workshop" : "MICCAI";
     }
 
     // ===== FALLBACK PROCESSING =====
