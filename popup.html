@@ -1,134 +1,296 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Scholar Venue Analyzer</title>
-  <style>
-    body {
-      width: 550px;
-      min-height: 400px;
-      font-family: Arial, sans-serif;
-      padding: 10px;
-    }
-    
-    h1 {
-      font-size: 18px;
-      color: #4285f4;
-    }
-    
-    .venue-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    
-    .venue-table th, .venue-table td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    
-    .venue-table th {
-      background-color: #f2f2f2;
-    }
-    
-    .venue-table tr:hover {
-      background-color: #f5f5f5;
-    }
-    
-    .venue-rank {
-      width: 50px;
-      text-align: center;
-    }
-    
-    .venue-count {
-      width: 110px;
-      text-align: center;
-    }
-    
-    .analyze-btn {
-      background-color: #4285f4;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    
-    .analyze-btn:hover {
-      background-color: #3367d6;
-    }
-    
-    .error {
-      color: red;
-      padding: 10px;
-    }
-    
-    .loading {
-      text-align: center;
-      padding: 20px;
-    }
-    
-    .publication-count {
-      margin-top: 10px;
-      font-style: italic;
-      color: #666;
-    }
-    
-    .top-venues {
-      margin-top: 30px;
-    }
-    
-    .show-more-btn {
-      background-color: transparent;
-      color: #4285f4;
-      border: none;
-      text-decoration: underline;
-      cursor: pointer;
-      margin-top: 10px;
-      display: block;
-    }
-  </style>
-</head>
-<body>
-  <h1>Where do I Publish</h1>
-  
-  <div id="not-on-profile" style="display: none;">
-    <p>Please navigate to a Google Scholar profile page to use this extension.</p>
-  </div>
-  
-  <div id="profile-content">
-    <button id="analyze-btn" class="analyze-btn">Analyze Publication Venues</button>
-    <p class="note">This analyzes publications visible on the page. For complete results, click "Show More" on the profile to display all publications first.</p>
-    
-    <div id="loading" class="loading" style="display: none;">
-      <p>Analyzing and grouping venues...</p>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Scholar Venue Analyzer</title>
+    <style>
+      body {
+        width: 600px;
+        min-height: 450px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding: 15px;
+        background-color: #fafafa;
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 20px;
+        color: #1a73e8;
+        margin: 0 0 10px 0;
+        font-weight: 500;
+      }
+
+      h2 {
+        font-size: 16px;
+        color: #333;
+        margin: 20px 0 10px 0;
+        font-weight: 500;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 15px;
+      }
+
+      .venue-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .venue-table th,
+      .venue-table td {
+        padding: 12px 8px;
+        text-align: left;
+        border-bottom: 1px solid #e8eaed;
+      }
+
+      .venue-table th {
+        background-color: #f8f9fa;
+        font-weight: 500;
+        color: #3c4043;
+        font-size: 13px;
+      }
+
+      .venue-table tr:hover {
+        background-color: #f8f9fa;
+      }
+
+      .venue-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .venue-rank {
+        width: 50px;
+        text-align: center;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .venue-count {
+        width: 80px;
+        text-align: center;
+        font-weight: bold;
+        color: #1a73e8;
+      }
+
+      .analyze-btn {
+        background-color: #1a73e8;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+      }
+
+      .analyze-btn:hover:not(:disabled) {
+        background-color: #1557b0;
+      }
+
+      .analyze-btn:disabled {
+        background-color: #9aa0a6;
+        cursor: not-allowed;
+      }
+
+      .error {
+        color: #d93025;
+        padding: 12px;
+        background-color: #fce8e6;
+        border-radius: 6px;
+        border: 1px solid #f4b2b0;
+        font-size: 14px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 30px 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        line-height: 1.5;
+      }
+
+      .loading p {
+        margin: 8px 0;
+        color: #3c4043;
+      }
+
+      .loading small {
+        color: #666;
+        font-size: 12px;
+      }
+
+      .publication-count {
+        margin: 15px 0;
+        padding: 12px;
+        background-color: #e8f0fe;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #1a73e8;
+        line-height: 1.4;
+      }
+
+      .note {
+        font-size: 12px;
+        color: #666;
+        margin-top: 10px;
+        padding: 8px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        border-left: 3px solid #1a73e8;
+      }
+
+      .show-more-btn {
+        background-color: transparent;
+        color: #1a73e8;
+        border: none;
+        text-decoration: underline;
+        cursor: pointer;
+        margin-top: 10px;
+        display: block;
+        font-size: 13px;
+        padding: 5px 0;
+      }
+
+      .show-more-btn:hover {
+        color: #1557b0;
+      }
+
+      .not-on-profile {
+        text-align: center;
+        padding: 40px 20px;
+      }
+
+      .not-on-profile p {
+        color: #666;
+        font-size: 14px;
+        margin: 10px 0;
+      }
+
+      .analysis-note {
+        margin-top: 15px;
+        padding: 10px;
+        background-color: #f0f4ff;
+        border-radius: 6px;
+        border-left: 3px solid #1a73e8;
+      }
+
+      .analysis-note p {
+        margin: 0;
+        font-size: 12px;
+        color: #666;
+        line-height: 1.4;
+      }
+
+      .stats-row {
+        display: flex;
+        gap: 15px;
+        margin: 15px 0;
+      }
+
+      .stat-card {
+        flex: 1;
+        padding: 10px;
+        background-color: white;
+        border-radius: 6px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-number {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1a73e8;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+      }
+
+      .loading-step {
+        margin: 4px 0;
+        padding: 8px 12px;
+        border-left: 3px solid #e8eaed;
+        transition: border-color 0.3s;
+      }
+
+      .loading-step.completed {
+        border-left-color: #34a853;
+      }
+
+      .loading-step.active {
+        border-left-color: #1a73e8;
+        background-color: #f8f9fa;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>📊 Where do I Publish</h1>
+    <p class="subtitle">
+      Analyze publication venues from Google Scholar profiles
+    </p>
+
+    <div id="not-on-profile" class="not-on-profile" style="display: none">
+      <p>
+        <strong
+          >Please navigate to a Google Scholar profile page to use this
+          extension.</strong
+        >
+      </p>
+      <p>
+        Visit a page like: <code>scholar.google.com/citations?user=...</code>
+      </p>
     </div>
-    
-    <div id="results" style="display: none;">
-      <div id="publication-count" class="publication-count"></div>
-      
-      <div class="top-venues">
-        <h2>Top Venues</h2>
-        <table id="venue-table" class="venue-table">
-          <thead>
-            <tr>
-              <th class="venue-rank">Rank</th>
-              <th>Venue</th>
-              <th class="venue-count">Publications</th>
-            </tr>
-          </thead>
-          <tbody id="venue-tbody">
-            <!-- Venue data will be inserted here -->
-          </tbody>
-        </table>
-        <button id="show-more-btn" class="show-more-btn" style="display: none;">Show all venues</button>
+
+    <div id="profile-content">
+      <button id="analyze-btn" class="analyze-btn">
+        🔍 Analyze Publication Venues
+      </button>
+
+      <div id="loading" class="loading" style="display: none">
+        <p>🔄 Analyzing and grouping venues...</p>
       </div>
+
+      <div id="results" style="display: none">
+        <div id="publication-count" class="publication-count"></div>
+
+        <div class="top-venues">
+          <h2>📈 Top Publication Venues</h2>
+          <table id="venue-table" class="venue-table">
+            <thead>
+              <tr>
+                <th class="venue-rank">🏆 Rank</th>
+                <th>Venue</th>
+                <th class="venue-count">📊 Count</th>
+              </tr>
+            </thead>
+            <tbody id="venue-tbody">
+              <!-- Venue data will be inserted here -->
+            </tbody>
+          </table>
+          <button
+            id="show-more-btn"
+            class="show-more-btn"
+            style="display: none"
+          >
+            Show all venues
+          </button>
+        </div>
+      </div>
+
+      <div id="error" class="error" style="display: none"></div>
     </div>
-    
-    <div id="error" class="error" style="display: none;"></div>
-  </div>
-  
-  <script src="popup.js"></script>
-</body>
+
+    <script src="popup.js"></script>
+  </body>
 </html>
