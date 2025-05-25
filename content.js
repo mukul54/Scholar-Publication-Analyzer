@@ -1,4 +1,6 @@
 (function () {
+  const startTime = performance.now();
+  console.log("🕐 Analysis started at:", new Date().toLocaleTimeString());
   // Global flag to prevent multiple analyses - using window object to make it truly global
   if (window.scholarAnalyzerRunning) {
     console.log(
@@ -126,6 +128,10 @@
       console.log(
         `🔢 Cross-check: venue data accounts for ${totalPubsFromVenues} publications`
       );
+
+      const endTime = performance.now();
+      const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+      console.log(`⏱️ Total analysis time: ${totalTime} seconds`);
 
       // Return enhanced structure with all the details
       return {
