@@ -362,6 +362,7 @@
 
   // Extract venue data from publication list with advanced normalization
   function extractVenueData() {
+    let venueMappings = {};
     // Get all publication entries currently visible
     const publications = document.querySelectorAll("tr.gsc_a_tr");
     console.log(
@@ -399,10 +400,16 @@
         let venueText = venueElement.textContent.trim();
         let normalizedVenue = normalizeVenue(venueText);
 
+        // Track the mapping for later review
+        if (!venueMappings[venueText]) {
+          venueMappings[venueText] = normalizedVenue || "UNMAPPED";
+        }
+
         if (normalizedVenue) {
           venues[normalizedVenue] = (venues[normalizedVenue] || 0) + 1;
           processedCount++;
         } else {
+          console.log(`⚠️ Venue not normalized (${index + 1}):`, venueText);
           skippedCount++;
         }
       } else {
@@ -424,6 +431,11 @@
     }));
     venueArray.sort((a, b) => b.count - a.count);
 
+    console.debug("📋 Raw to Normalized Venue Mapping:");
+    Object.entries(venueMappings).forEach(([raw, mapped]) => {
+      console.debug(`🔹 "${raw}" => "${mapped}"`);
+    });
+
     return {
       venues: venueArray,
       processedCount: processedCount,
@@ -431,340 +443,451 @@
     };
   }
 
-  // Enhanced function to normalize venue names
+  // Enhanced function to normalize venue names with comprehensive conference recognition
   function normalizeVenue(venueText) {
     // Skip empty venues
     if (!venueText) return null;
 
+    // Store original text for debugging
+    const originalText = venueText;
+
     // Remove trailing ellipsis and clean up
     venueText = venueText.replace(/…$/, "").trim();
 
-    // Remove year citations and volume/issue numbers
-    venueText = venueText.replace(/\s*,?\s*\d{4}(\s|$)/, " ");
-    venueText = venueText.replace(/\s*,?\s*\d+(\s*\(\d+\))?(\s|$)/, " ");
-    venueText = venueText.replace(/\s*,?\s*pp?\s*[\d-]+/i, "");
+    // Remove year citations and volume/issue numbers - be more careful not to remove important text
+    venueText = venueText.replace(/\s*,\s*\d{4}(\s|$)/, " ");
+    venueText = venueText.replace(/\s*,\s*\d+(\s*\(\d+\))?(\s|$)/, " ");
+    venueText = venueText.replace(/\s*,\s*pp?\s*[\d-]+/i, "");
+    venueText = venueText.replace(/\s*,\s*\d+-\d+\s*$/, "");
 
     // Clean up extra whitespace
     venueText = venueText.replace(/\s+/g, " ").trim();
 
-    // Major conferences and journals patterns (enhanced)
+    // Convert to lowercase for matching but preserve case for final result
+    const lowerVenue = venueText.toLowerCase();
 
-    // Computer Vision Conferences
+    // Check if it's a workshop (for separate categorization)
+    const isWorkshop = /workshop|ws\b/i.test(venueText);
+
+    // Major conferences and journals patterns (comprehensive)
+
+    // ===== COMPUTER VISION CONFERENCES =====
+    // CVPR - various forms
     if (
-      /computer vision and pattern recognition|cvpr|ieee.*?conference on computer vision|cvf.*?computer vision and pattern|proceedings.*?cvpr/i.test(
-        venueText
+      /computer vision and pattern recognition|cvpr|cvf.*?computer vision and pattern|proceedings.*?cvpr|ieee.*?cvf.*?computer vision and pattern recognition/i.test(
+        lowerVenue
       )
     ) {
-      return "CVPR";
+      return isWorkshop ? "CVPR Workshop" : "CVPR";
     }
 
+    // ICCV - various forms including the full IEEE title
     if (
-      /international conference on computer vision|iccv|proceedings.*?iccv/i.test(
-        venueText
+      /international conference on computer vision|iccv|proceedings.*?iccv|ieee.*?international conference on computer vision/i.test(
+        lowerVenue
       )
     ) {
-      return "ICCV";
+      return isWorkshop ? "ICCV Workshop" : "ICCV";
     }
 
+    // ECCV - European Conference on Computer Vision
     if (
       /european conference on computer vision|eccv|proceedings.*?eccv/i.test(
-        venueText
+        lowerVenue
       )
     ) {
-      return "ECCV";
+      return isWorkshop ? "ECCV Workshop" : "ECCV";
     }
 
+    // WACV - Winter Conference on Applications of Computer Vision
     if (
-      /winter conference on applications of computer vision|wacv/i.test(
-        venueText
+      /winter conference on applications of computer vision|wacv|ieee.*?cvf.*?winter conference|cvf.*?winter conference/i.test(
+        lowerVenue
       )
     ) {
-      return "WACV";
+      return isWorkshop ? "WACV Workshop" : "WACV";
     }
 
-    if (/british machine vision conference|bmvc/i.test(venueText)) {
-      return "BMVC";
+    // BMVC - British Machine Vision Conference
+    if (/british machine vision conference|bmvc/i.test(lowerVenue)) {
+      return isWorkshop ? "BMVC Workshop" : "BMVC";
     }
 
-    if (/asian conference on computer vision|accv/i.test(venueText)) {
-      return "ACCV";
+    // ACCV - Asian Conference on Computer Vision
+    if (/asian conference on computer vision|accv/i.test(lowerVenue)) {
+      return isWorkshop ? "ACCV Workshop" : "ACCV";
     }
 
-    // Machine Learning Conferences
+    // ===== MACHINE LEARNING CONFERENCES =====
+    // NeurIPS (formerly NIPS)
     if (
-      /neural information processing systems|neurips|nips|advances in neural|proceedings.*?nips|proceedings.*?neurips/i.test(
-        venueText
+      /neural information processing systems|neurips|nips|advances in neural information processing|conference.*?neural information processing|proceedings.*?nips|proceedings.*?neurips/i.test(
+        lowerVenue
       )
     ) {
-      return "NeurIPS";
+      return isWorkshop ? "NeurIPS Workshop" : "NeurIPS";
     }
 
+    // ICML - International Conference on Machine Learning
     if (
       /international conference on machine learning|icml|proceedings.*?icml/i.test(
-        venueText
+        lowerVenue
       )
     ) {
-      return "ICML";
+      return isWorkshop ? "ICML Workshop" : "ICML";
     }
 
+    // ICLR - International Conference on Learning Representations
     if (
       /international conference on learning representations|iclr/i.test(
-        venueText
+        lowerVenue
       )
     ) {
-      return "ICLR";
+      return isWorkshop ? "ICLR Workshop" : "ICLR";
     }
 
+    // AISTATS - International Conference on Artificial Intelligence and Statistics
     if (
       /artificial intelligence and statistics|aistats|international conference on artificial intelligence and statistics/i.test(
-        venueText
+        lowerVenue
       )
     ) {
-      return "AISTATS";
+      return isWorkshop ? "AISTATS Workshop" : "AISTATS";
     }
 
-    // AI Conferences
+    // ===== AI CONFERENCES =====
+    // AAAI
     if (
       /aaai|association for the advancement of artificial intelligence|national conference on artificial intelligence|proceedings.*?aaai/i.test(
-        venueText
+        lowerVenue
       )
     ) {
-      return "AAAI";
+      return isWorkshop ? "AAAI Workshop" : "AAAI";
     }
 
+    // IJCAI - International Joint Conference on Artificial Intelligence
     if (
       /international joint conference on artificial intelligence|ijcai/i.test(
-        venueText
+        lowerVenue
       )
     ) {
-      return "IJCAI";
+      return isWorkshop ? "IJCAI Workshop" : "IJCAI";
     }
 
-    if (/uncertainty in artificial intelligence|uai/i.test(venueText)) {
-      return "UAI";
+    // UAI - Uncertainty in Artificial Intelligence
+    if (/uncertainty in artificial intelligence|uai/i.test(lowerVenue)) {
+      return isWorkshop ? "UAI Workshop" : "UAI";
     }
 
-    // NLP Conferences
+    // ===== NLP CONFERENCES =====
+    // ACL - Association for Computational Linguistics
     if (
       /association for computational linguistics|acl|proceedings.*?acl/i.test(
-        venueText
-      )
+        lowerVenue
+      ) &&
+      !/naacl|eacl/i.test(lowerVenue)
     ) {
-      return "ACL";
+      return isWorkshop ? "ACL Workshop" : "ACL";
     }
 
-    if (/north american chapter|naacl|findings.*?naacl/i.test(venueText)) {
-      return "NAACL";
+    // NAACL - North American Chapter of ACL
+    if (/north american chapter|naacl|findings.*?naacl/i.test(lowerVenue)) {
+      return isWorkshop ? "NAACL Workshop" : "NAACL";
     }
 
+    // EMNLP - Empirical Methods in Natural Language Processing
     if (
-      /empirical methods in natural language processing|emnlp/i.test(venueText)
+      /empirical methods in natural language processing|emnlp/i.test(lowerVenue)
     ) {
-      return "EMNLP";
+      return isWorkshop ? "EMNLP Workshop" : "EMNLP";
     }
 
+    // CoNLL - Conference on Natural Language Learning
     if (
       /conference on computational natural language learning|conll/i.test(
-        venueText
+        lowerVenue
       )
     ) {
-      return "CoNLL";
+      return isWorkshop ? "CoNLL Workshop" : "CoNLL";
     }
 
-    // Data Mining and Databases
+    // EACL - European Chapter of ACL
+    if (/european chapter.*?acl|eacl/i.test(lowerVenue)) {
+      return isWorkshop ? "EACL Workshop" : "EACL";
+    }
+
+    // COLING - International Conference on Computational Linguistics
+    if (
+      /international conference on computational linguistics|coling/i.test(
+        lowerVenue
+      )
+    ) {
+      return isWorkshop ? "COLING Workshop" : "COLING";
+    }
+
+    // ===== DATA MINING AND WEB CONFERENCES =====
+    // KDD - Knowledge Discovery and Data Mining
     if (
       /sigkdd|knowledge discovery and data mining|kdd|proceedings.*?kdd/i.test(
-        venueText
+        lowerVenue
       )
     ) {
-      return "ACM SIGKDD";
+      return isWorkshop ? "KDD Workshop" : "ACM SIGKDD";
     }
 
-    if (/international conference on data mining|icdm/i.test(venueText)) {
-      return "ICDM";
+    // ICDM - International Conference on Data Mining
+    if (/international conference on data mining|icdm/i.test(lowerVenue)) {
+      return isWorkshop ? "ICDM Workshop" : "ICDM";
     }
 
+    // WWW - World Wide Web Conference
     if (
       /world wide web conference|www|international world wide web/i.test(
-        venueText
+        lowerVenue
       )
     ) {
-      return "WWW";
+      return isWorkshop ? "WWW Workshop" : "WWW";
     }
 
-    // Robotics
+    // ===== ROBOTICS CONFERENCES =====
+    // ICRA - International Conference on Robotics and Automation
     if (
-      /international conference on robotics and automation|icra|robotics and automation/i.test(
-        venueText
+      /international conference on robotics and automation|icra|ieee.*?robotics and automation/i.test(
+        lowerVenue
       )
     ) {
-      return "ICRA";
+      return isWorkshop ? "ICRA Workshop" : "ICRA";
     }
 
-    if (/intelligent robots and systems|iros/i.test(venueText)) {
-      return "IROS";
-    }
-
-    // Signal Processing
+    // IROS - IEEE/RSJ International Conference on Intelligent Robots and Systems
     if (
-      /acoustics, speech and signal processing|icassp|international conference on acoustics/i.test(
-        venueText
+      /intelligent robots and systems|iros|ieee.*?rsj.*?intelligent robots/i.test(
+        lowerVenue
       )
     ) {
-      return "ICASSP";
+      return isWorkshop ? "IROS Workshop" : "IROS";
     }
 
-    if (/international conference on image processing|icip/i.test(venueText)) {
-      return "ICIP";
-    }
-
-    // Medical Imaging
+    // ===== SIGNAL PROCESSING CONFERENCES =====
+    // ICASSP - International Conference on Acoustics, Speech and Signal Processing
     if (
-      /medical image computing and computer-assisted intervention|miccai/i.test(
-        venueText
+      /acoustics.*?speech.*?signal processing|icassp|international conference on acoustics/i.test(
+        lowerVenue
       )
     ) {
-      return "MICCAI";
+      return isWorkshop ? "ICASSP Workshop" : "ICASSP";
     }
 
-    if (/information processing in medical imaging|ipmi/i.test(venueText)) {
-      return "IPMI";
+    // ICIP - International Conference on Image Processing
+    if (/international conference on image processing|icip/i.test(lowerVenue)) {
+      return isWorkshop ? "ICIP Workshop" : "ICIP";
     }
 
-    // Graphics and Visualization
+    // ===== MEDICAL IMAGING CONFERENCES =====
+    // MICCAI - Medical Image Computing and Computer-Assisted Intervention
     if (
-      /siggraph|computer graphics and interactive techniques/i.test(venueText)
+      /medical image computing and computer.assisted intervention|miccai/i.test(
+        lowerVenue
+      )
     ) {
-      return "SIGGRAPH";
+      return isWorkshop ? "MICCAI Workshop" : "MICCAI";
     }
 
-    if (/ieee visualization|vis\s|visualization conference/i.test(venueText)) {
-      return "IEEE VIS";
+    // IPMI - Information Processing in Medical Imaging
+    if (/information processing in medical imaging|ipmi/i.test(lowerVenue)) {
+      return isWorkshop ? "IPMI Workshop" : "IPMI";
     }
 
-    // Journals - IEEE Transactions
+    // ===== GRAPHICS AND VISUALIZATION =====
+    // SIGGRAPH
+    if (
+      /siggraph|computer graphics and interactive techniques/i.test(lowerVenue)
+    ) {
+      return isWorkshop ? "SIGGRAPH Workshop" : "SIGGRAPH";
+    }
+
+    // IEEE VIS - Visualization Conference
+    if (/ieee visualization|vis\s|visualization conference/i.test(lowerVenue)) {
+      return isWorkshop ? "IEEE VIS Workshop" : "IEEE VIS";
+    }
+
+    // ===== IEEE TRANSACTIONS (JOURNALS) =====
+    // IEEE TPAMI - Transactions on Pattern Analysis and Machine Intelligence
     if (
       /transactions on pattern analysis and machine intelligence|tpami|ieee.*?pattern analysis/i.test(
-        venueText
+        lowerVenue
       )
     ) {
       return "IEEE TPAMI";
     }
 
-    if (/transactions on image processing|tip/i.test(venueText)) {
+    // IEEE TIP - Transactions on Image Processing
+    if (/transactions on image processing|tip/i.test(lowerVenue)) {
       return "IEEE TIP";
     }
 
-    if (/transactions on neural networks|tnn/i.test(venueText)) {
+    // IEEE TNN/TNNLS - Transactions on Neural Networks
+    if (/transactions on neural networks|tnn|tnnls/i.test(lowerVenue)) {
       return "IEEE TNN";
     }
 
-    if (/transactions on cybernetics|tcyb/i.test(venueText)) {
+    // IEEE TCYB - Transactions on Cybernetics
+    if (/transactions on cybernetics|tcyb/i.test(lowerVenue)) {
       return "IEEE TCYB";
     }
 
-    if (/transactions on multimedia|tmm/i.test(venueText)) {
+    // IEEE TMM - Transactions on Multimedia
+    if (/transactions on multimedia|tmm/i.test(lowerVenue)) {
       return "IEEE TMM";
     }
 
-    // Other Major Journals
-    if (/international journal of computer vision|ijcv/i.test(venueText)) {
-      return "IJCV";
-    }
-
-    if (/journal of machine learning research|jmlr/i.test(venueText)) {
-      return "JMLR";
-    }
-
-    if (/machine learning|^ml\s/i.test(venueText)) {
-      return "Machine Learning Journal";
-    }
-
-    if (/computer vision and image understanding|cviu/i.test(venueText)) {
-      return "CVIU";
-    }
-
-    if (/pattern recognition letters|pattern recognition \d/i.test(venueText)) {
-      return "Pattern Recognition";
-    }
-
-    if (/medical image analysis/i.test(venueText)) {
-      return "Medical Image Analysis";
-    }
-
-    if (/neurocomputing/i.test(venueText)) {
-      return "Neurocomputing";
-    }
-
-    if (/ieee access/i.test(venueText)) {
+    // IEEE Access
+    if (/ieee access/i.test(lowerVenue)) {
       return "IEEE Access";
     }
 
-    // Preprints and Other Sources
-    if (/arxiv|corr/i.test(venueText)) {
-      return "arXiv";
+    // ===== OTHER MAJOR JOURNALS =====
+    // IJCV - International Journal of Computer Vision
+    if (/international journal of computer vision|ijcv/i.test(lowerVenue)) {
+      return "IJCV";
     }
 
-    if (/biorxiv/i.test(venueText)) {
-      return "bioRxiv";
+    // JMLR - Journal of Machine Learning Research
+    if (/journal of machine learning research|jmlr/i.test(lowerVenue)) {
+      return "JMLR";
     }
 
-    if (/patent|us patent/i.test(venueText)) {
-      return "US Patents";
+    // Machine Learning Journal
+    if (/machine learning journal|^machine learning$/i.test(lowerVenue)) {
+      return "Machine Learning Journal";
     }
 
-    // Publishers
-    if (/springer|lecture notes in computer science|lncs/i.test(venueText)) {
-      return "Springer";
+    // CVIU - Computer Vision and Image Understanding
+    if (/computer vision and image understanding|cviu/i.test(lowerVenue)) {
+      return "CVIU";
     }
 
-    if (/mit press/i.test(venueText)) {
-      return "MIT Press";
+    // Pattern Recognition
+    if (/pattern recognition\s|pattern recognition$/i.test(lowerVenue)) {
+      return "Pattern Recognition";
     }
 
-    // High-impact journals
-    if (/^science\s|\sscience\s/i.test(venueText)) {
+    // Medical Image Analysis
+    if (/medical image analysis/i.test(lowerVenue)) {
+      return "Medical Image Analysis";
+    }
+
+    // Neurocomputing
+    if (/neurocomputing/i.test(lowerVenue)) {
+      return "Neurocomputing";
+    }
+
+    // ===== HIGH-IMPACT JOURNALS =====
+    // Science
+    if (/^science\s|^\s*science$/i.test(lowerVenue)) {
       return "Science";
     }
 
-    if (/nature communications/i.test(venueText)) {
+    // Nature and Nature family
+    if (/nature communications/i.test(lowerVenue)) {
       return "Nature Communications";
     }
 
-    if (/nature machine intelligence/i.test(venueText)) {
+    if (/nature machine intelligence/i.test(lowerVenue)) {
       return "Nature Machine Intelligence";
     }
 
+    if (/^nature$/i.test(lowerVenue)) {
+      return "Nature";
+    }
+
+    // PNAS
     if (
-      /proceedings of the national academy of sciences|pnas/i.test(venueText)
+      /proceedings of the national academy of sciences|pnas/i.test(lowerVenue)
     ) {
       return "PNAS";
     }
 
-    // Workshop and other venues
-    if (/workshop/i.test(venueText)) {
-      // Try to extract the main conference name
-      if (/cvpr.*?workshop|workshop.*?cvpr/i.test(venueText)) {
-        return "CVPR Workshop";
-      } else if (/iccv.*?workshop|workshop.*?iccv/i.test(venueText)) {
-        return "ICCV Workshop";
-      } else if (
-        /neurips.*?workshop|workshop.*?neurips|nips.*?workshop/i.test(venueText)
-      ) {
-        return "NeurIPS Workshop";
-      } else {
-        return "Workshop";
-      }
+    // ===== PREPRINTS AND OTHER SOURCES =====
+    // arXiv preprints
+    if (/arxiv|ar xiv|corr/i.test(lowerVenue)) {
+      return "arXiv";
     }
 
-    // Generic fallback with better cleaning
+    // bioRxiv preprints
+    if (/biorxiv/i.test(lowerVenue)) {
+      return "bioRxiv";
+    }
+
+    // Patents
+    if (/patent|us patent/i.test(lowerVenue)) {
+      return "US Patents";
+    }
+
+    // SSRN
+    if (/ssrn|social science research network/i.test(lowerVenue)) {
+      return "Available at SSRN";
+    }
+
+    // ===== PUBLISHERS =====
+    // Springer
+    if (/springer|lecture notes in computer science|lncs/i.test(lowerVenue)) {
+      return "Springer";
+    }
+
+    // MIT Press
+    if (/mit press/i.test(lowerVenue)) {
+      return "MIT Press";
+    }
+
+    // ===== ADDITIONAL CONFERENCES =====
+    // CHI - Conference on Human Factors in Computing Systems
+    if (/conference on human factors|chi\s|acm chi/i.test(lowerVenue)) {
+      return isWorkshop ? "CHI Workshop" : "ACM CHI";
+    }
+
+    // SIGIR - Special Interest Group on Information Retrieval
+    if (/sigir|information retrieval/i.test(lowerVenue)) {
+      return isWorkshop ? "SIGIR Workshop" : "ACM SIGIR";
+    }
+
+    // INTERSPEECH
+    if (/interspeech/i.test(lowerVenue)) {
+      return isWorkshop ? "INTERSPEECH Workshop" : "INTERSPEECH";
+    }
+
+    // ISCA conferences
+    if (/isca/i.test(lowerVenue)) {
+      return "ISCA";
+    }
+
+    // ===== WORKSHOP DETECTION =====
+    // Generic workshop handling - try to extract the main conference name
+    if (isWorkshop) {
+      // Try to extract conference name from workshop titles
+      if (/cvpr/i.test(lowerVenue)) return "CVPR Workshop";
+      if (/iccv/i.test(lowerVenue)) return "ICCV Workshop";
+      if (/eccv/i.test(lowerVenue)) return "ECCV Workshop";
+      if (/neurips|nips/i.test(lowerVenue)) return "NeurIPS Workshop";
+      if (/icml/i.test(lowerVenue)) return "ICML Workshop";
+      if (/aaai/i.test(lowerVenue)) return "AAAI Workshop";
+      if (/ijcai/i.test(lowerVenue)) return "IJCAI Workshop";
+
+      // Generic workshop if we can't identify the main conference
+      return "Workshop";
+    }
+
+    // ===== FALLBACK PROCESSING =====
+    // Remove common prefixes and suffixes for better generic matching
     let simplifiedVenue = venueText.split(/[,.(]/)[0].trim();
 
-    // Remove common prefixes and suffixes
+    // Remove common prefixes
     simplifiedVenue = simplifiedVenue.replace(
-      /^(proceedings of |proceedings |proc\.?\s+)/i,
+      /^(proceedings of the |proceedings of |proceedings |proc\.?\s+|the\s+)/i,
       ""
     );
+
+    // Remove common suffixes
     simplifiedVenue = simplifiedVenue.replace(/\s+(proceedings|proc\.?)$/i, "");
 
     // Remove years and numbers from the end
@@ -773,6 +896,14 @@
 
     // Clean up and return
     simplifiedVenue = simplifiedVenue.trim();
+
+    // Skip very short or generic terms
+    if (
+      simplifiedVenue.length < 3 ||
+      /^(the|a|an|in|on|of|and|for|with)$/i.test(simplifiedVenue)
+    ) {
+      return null;
+    }
 
     return simplifiedVenue || null;
   }

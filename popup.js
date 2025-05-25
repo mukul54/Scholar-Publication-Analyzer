@@ -1,13 +1,114 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // Define allowed Google Scholar domains
+  const allowedDomains = [
+    "scholar.google.com",
+    "scholar.google.ae",
+    "scholar.google.com.af",
+    "scholar.google.com.ag",
+    "scholar.google.com.ar",
+    "scholar.google.com.au",
+    "scholar.google.at",
+    "scholar.google.az",
+    "scholar.google.be",
+    "scholar.google.com.bd",
+    "scholar.google.by",
+    "scholar.google.com.bo",
+    "scholar.google.com.br",
+    "scholar.google.ca",
+    "scholar.google.cl",
+    "scholar.google.cn",
+    "scholar.google.com.co",
+    "scholar.google.co.cr",
+    "scholar.google.cz",
+    "scholar.google.dk",
+    "scholar.google.com.do",
+    "scholar.google.com.ec",
+    "scholar.google.com.eg",
+    "scholar.google.es",
+    "scholar.google.fi",
+    "scholar.google.fr",
+    "scholar.google.de",
+    "scholar.google.gr",
+    "scholar.google.com.hk",
+    "scholar.google.hu",
+    "scholar.google.co.id",
+    "scholar.google.ie",
+    "scholar.google.co.il",
+    "scholar.google.co.in",
+    "scholar.google.it",
+    "scholar.google.co.jp",
+    "scholar.google.jo",
+    "scholar.google.kz",
+    "scholar.google.co.kr",
+    "scholar.google.com.kw",
+    "scholar.google.lv",
+    "scholar.google.lt",
+    "scholar.google.com.my",
+    "scholar.google.com.mx",
+    "scholar.google.nl",
+    "scholar.google.co.nz",
+    "scholar.google.com.ng",
+    "scholar.google.no",
+    "scholar.google.com.pk",
+    "scholar.google.com.pe",
+    "scholar.google.com.ph",
+    "scholar.google.pl",
+    "scholar.google.pt",
+    "scholar.google.com.qa",
+    "scholar.google.ro",
+    "scholar.google.ru",
+    "scholar.google.com.sa",
+    "scholar.google.com.sg",
+    "scholar.google.sk",
+    "scholar.google.si",
+    "scholar.google.co.za",
+    "scholar.google.se",
+    "scholar.google.ch",
+    "scholar.google.com.tw",
+    "scholar.google.co.th",
+    "scholar.google.com.tr",
+    "scholar.google.com.ua",
+    "scholar.google.co.uk",
+    "scholar.google.com.uy",
+    "scholar.google.co.ve",
+    "scholar.google.com.vn",
+  ];
+
   // Check if we're on a Google Scholar profile page
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const url = tabs[0].url;
+    const urlObj = new URL(url);
 
-    if (!url.includes("scholar.google.com/citations")) {
+    console.log("Current page:", urlObj.hostname, urlObj.pathname);
+
+    // Check if we're on a valid Scholar domain
+    if (!allowedDomains.includes(urlObj.hostname)) {
       document.getElementById("not-on-profile").style.display = "block";
       document.getElementById("profile-content").style.display = "none";
+      document.getElementById("not-on-profile").innerHTML = `
+        <p><strong>This extension only works on Google Scholar pages.</strong></p>
+        <p>Please navigate to a Google Scholar profile page to use this extension.</p>
+        <p>Example: <code>scholar.google.com/citations?user=...</code></p>
+        <p><small>Current page: ${urlObj.hostname}</small></p>
+      `;
       return;
     }
+
+    // Check if we're on a citations/profile page (not just search results)
+    if (!urlObj.pathname.startsWith("/citations")) {
+      document.getElementById("not-on-profile").style.display = "block";
+      document.getElementById("profile-content").style.display = "none";
+      document.getElementById("not-on-profile").innerHTML = `
+        <p><strong>Please navigate to a Scholar profile page.</strong></p>
+        <p>This extension analyzes individual researcher profiles, not search results.</p>
+        <p>Look for URLs like: <code>scholar.google.com/citations?user=...</code></p>
+      `;
+      return;
+    }
+
+    // We're on a valid Scholar profile page - show the main content
+    document.getElementById("not-on-profile").style.display = "none";
+    document.getElementById("profile-content").style.display = "block";
 
     // Setup analyze button
     const analyzeBtn = document.getElementById("analyze-btn");
@@ -104,7 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
               }
             );
-          }, 800); // Shorter delay since we removed the technical step
+          }, 800);
         }
       );
     });
