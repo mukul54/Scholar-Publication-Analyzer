@@ -1,6 +1,6 @@
 # where-do-i-publish
 
-# 📊 Where Do I Publish - Scholar Venue Analyzer
+# 📊 Google Scholar Publication Analyzer - Academic Venue Tracker
 
 > **Transform your Google Scholar profile into actionable publication insights in seconds**
 
@@ -10,7 +10,7 @@
 
 ## 🚀 What It Does
 
-**Where Do I Publish** is a powerful Chrome extension that instantly analyzes any Google Scholar profile and reveals publication patterns, venue preferences, and research trends. Perfect for researchers, academics, and students who want to understand where scholars publish their work.
+**Google Scholar Publication Analyzer - Academic Venue Tracker** is a powerful Chrome extension that instantly analyzes any Google Scholar profile and reveals publication patterns, venue preferences, and research trends. Perfect for researchers, academics, and students who want to understand where scholars publish their work.
 
 ### ✨ Key Features
 
@@ -70,7 +70,7 @@
 ### Quick Start
 
 1. **Navigate** to any Google Scholar profile (e.g., `scholar.google.com/citations?user=...`)
-2. **Click** the "Where Do I Publish" extension icon
+2. **Click** the "Google Scholar Publication Analyzer - Academic Venue Tracker" extension icon
 3. **Hit** the "🔍 Analyze Publication Venues" button
 4. **Watch** as it automatically loads all publications and analyzes venues
 5. **Explore** the ranked results and insights

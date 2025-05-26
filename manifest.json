@@ -1,12 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Where Do I Publish - Scholar Venue Analyzer",
+  "name": "Google Scholar Publication Analyzer - Academic Venue Tracker",
   "version": "2.0",
-  "description": "Analyzes and groups publication venues from Google Scholar profiles with automatic pagination handling and enhanced reporting",
-  "background": {
-    "service_worker": "background.js"
-  },
-  "permissions": ["activeTab", "scripting", "tabs"],
+  "description": "Instantly analyze Google Scholar profiles to discover where researchers publish. Track publication venues, analyze academic patterns, and identify top journals and conferences with one click. Perfect for PhD students, researchers, and faculty.",
+  "permissions": ["activeTab", "scripting"],
+
   "host_permissions": [
     "https://scholar.google.com/*",
     "https://scholar.google.ae/*",
@@ -80,24 +78,191 @@
     "https://scholar.google.co.ve/*",
     "https://scholar.google.com.vn/*"
   ],
+
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Analyze Scholar Publication Venues",
+    "default_title": "Analyze Google Scholar Publications",
     "default_icon": {
       "16": "images/icon16.png",
       "48": "images/icon48.png",
       "128": "images/icon128.png"
     }
   },
+
   "icons": {
     "16": "images/icon16.png",
     "48": "images/icon48.png",
     "128": "images/icon128.png"
   },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://scholar.google.com/*",
+        "https://scholar.google.ae/*",
+        "https://scholar.google.com.af/*",
+        "https://scholar.google.com.ag/*",
+        "https://scholar.google.com.ar/*",
+        "https://scholar.google.com.au/*",
+        "https://scholar.google.at/*",
+        "https://scholar.google.az/*",
+        "https://scholar.google.be/*",
+        "https://scholar.google.com.bd/*",
+        "https://scholar.google.by/*",
+        "https://scholar.google.com.bo/*",
+        "https://scholar.google.com.br/*",
+        "https://scholar.google.ca/*",
+        "https://scholar.google.cl/*",
+        "https://scholar.google.cn/*",
+        "https://scholar.google.com.co/*",
+        "https://scholar.google.co.cr/*",
+        "https://scholar.google.cz/*",
+        "https://scholar.google.dk/*",
+        "https://scholar.google.com.do/*",
+        "https://scholar.google.com.ec/*",
+        "https://scholar.google.com.eg/*",
+        "https://scholar.google.es/*",
+        "https://scholar.google.fi/*",
+        "https://scholar.google.fr/*",
+        "https://scholar.google.de/*",
+        "https://scholar.google.gr/*",
+        "https://scholar.google.com.hk/*",
+        "https://scholar.google.hu/*",
+        "https://scholar.google.co.id/*",
+        "https://scholar.google.ie/*",
+        "https://scholar.google.co.il/*",
+        "https://scholar.google.co.in/*",
+        "https://scholar.google.it/*",
+        "https://scholar.google.co.jp/*",
+        "https://scholar.google.jo/*",
+        "https://scholar.google.kz/*",
+        "https://scholar.google.co.kr/*",
+        "https://scholar.google.com.kw/*",
+        "https://scholar.google.lv/*",
+        "https://scholar.google.lt/*",
+        "https://scholar.google.com.my/*",
+        "https://scholar.google.com.mx/*",
+        "https://scholar.google.nl/*",
+        "https://scholar.google.co.nz/*",
+        "https://scholar.google.com.ng/*",
+        "https://scholar.google.no/*",
+        "https://scholar.google.com.pk/*",
+        "https://scholar.google.com.pe/*",
+        "https://scholar.google.com.ph/*",
+        "https://scholar.google.pl/*",
+        "https://scholar.google.pt/*",
+        "https://scholar.google.com.qa/*",
+        "https://scholar.google.ro/*",
+        "https://scholar.google.ru/*",
+        "https://scholar.google.com.sa/*",
+        "https://scholar.google.com.sg/*",
+        "https://scholar.google.sk/*",
+        "https://scholar.google.si/*",
+        "https://scholar.google.co.za/*",
+        "https://scholar.google.se/*",
+        "https://scholar.google.ch/*",
+        "https://scholar.google.com.tw/*",
+        "https://scholar.google.co.th/*",
+        "https://scholar.google.com.tr/*",
+        "https://scholar.google.com.ua/*",
+        "https://scholar.google.co.uk/*",
+        "https://scholar.google.com.uy/*",
+        "https://scholar.google.co.ve/*",
+        "https://scholar.google.com.vn/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
   "web_accessible_resources": [
     {
-      "resources": ["popup.html", "popup.js"],
-      "matches": ["*://scholar.google.com/*"]
+      "resources": ["popup.html", "popup.js", "images/*"],
+      "matches": [
+        "https://scholar.google.com/*",
+        "https://scholar.google.ae/*",
+        "https://scholar.google.com.af/*",
+        "https://scholar.google.com.ag/*",
+        "https://scholar.google.com.ar/*",
+        "https://scholar.google.com.au/*",
+        "https://scholar.google.at/*",
+        "https://scholar.google.az/*",
+        "https://scholar.google.be/*",
+        "https://scholar.google.com.bd/*",
+        "https://scholar.google.by/*",
+        "https://scholar.google.com.bo/*",
+        "https://scholar.google.com.br/*",
+        "https://scholar.google.ca/*",
+        "https://scholar.google.cl/*",
+        "https://scholar.google.cn/*",
+        "https://scholar.google.com.co/*",
+        "https://scholar.google.co.cr/*",
+        "https://scholar.google.cz/*",
+        "https://scholar.google.dk/*",
+        "https://scholar.google.com.do/*",
+        "https://scholar.google.com.ec/*",
+        "https://scholar.google.com.eg/*",
+        "https://scholar.google.es/*",
+        "https://scholar.google.fi/*",
+        "https://scholar.google.fr/*",
+        "https://scholar.google.de/*",
+        "https://scholar.google.gr/*",
+        "https://scholar.google.com.hk/*",
+        "https://scholar.google.hu/*",
+        "https://scholar.google.co.id/*",
+        "https://scholar.google.ie/*",
+        "https://scholar.google.co.il/*",
+        "https://scholar.google.co.in/*",
+        "https://scholar.google.it/*",
+        "https://scholar.google.co.jp/*",
+        "https://scholar.google.jo/*",
+        "https://scholar.google.kz/*",
+        "https://scholar.google.co.kr/*",
+        "https://scholar.google.com.kw/*",
+        "https://scholar.google.lv/*",
+        "https://scholar.google.lt/*",
+        "https://scholar.google.com.my/*",
+        "https://scholar.google.com.mx/*",
+        "https://scholar.google.nl/*",
+        "https://scholar.google.co.nz/*",
+        "https://scholar.google.com.ng/*",
+        "https://scholar.google.no/*",
+        "https://scholar.google.com.pk/*",
+        "https://scholar.google.com.pe/*",
+        "https://scholar.google.com.ph/*",
+        "https://scholar.google.pl/*",
+        "https://scholar.google.pt/*",
+        "https://scholar.google.com.qa/*",
+        "https://scholar.google.ro/*",
+        "https://scholar.google.ru/*",
+        "https://scholar.google.com.sa/*",
+        "https://scholar.google.com.sg/*",
+        "https://scholar.google.sk/*",
+        "https://scholar.google.si/*",
+        "https://scholar.google.co.za/*",
+        "https://scholar.google.se/*",
+        "https://scholar.google.ch/*",
+        "https://scholar.google.com.tw/*",
+        "https://scholar.google.co.th/*",
+        "https://scholar.google.com.tr/*",
+        "https://scholar.google.com.ua/*",
+        "https://scholar.google.co.uk/*",
+        "https://scholar.google.com.uy/*",
+        "https://scholar.google.co.ve/*",
+        "https://scholar.google.com.vn/*"
+      ]
     }
-  ]
+  ],
+
+  "minimum_chrome_version": "88",
+
+  "short_name": "Scholar Analyzer",
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }
