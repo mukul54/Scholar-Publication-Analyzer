@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Google Scholar Publication Analyzer - Academic Venue Tracker",
+  "name": "Scholar Publication Analyzer",
   "version": "2.0",
   "description": "Instantly analyze Google Scholar profiles to discover where researchers publish. Track publication venues, analyze academic patterns, and identify top journals and conferences with one click. Perfect for PhD students, researchers, and faculty.",
   "permissions": ["activeTab", "scripting"],
