@@ -186,4 +186,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ for the academic community**
 
-[⭐ Star this repo](https://github.com/yourusername/where-do-i-publish) | [🚀 Install Extension](#) | [📝 Report Issues](#)
+[⭐ Star this repo](https://github.com/mukul54/Scholar-Publication-Analyzer) | [🚀 Install Extension](https://chromewebstore.google.com/detail/where-do-i-publish/lpbpamoidfkbngcnahadjcleflnpcaod) | [📝 Report Issues](https://github.com/mukul54/Scholar-Publication-Analyzer/issues)
