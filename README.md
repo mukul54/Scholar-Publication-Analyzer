@@ -4,7 +4,7 @@
 
 > **Transform your Google Scholar profile into actionable publication insights in seconds**
 
-[![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chrome.google.com/webstore)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/where-do-i-publish/lpbpamoidfkbngcnahadjcleflnpcaod)
 [![Version](https://img.shields.io/badge/Version-2.0-brightgreen?style=for-the-badge)](https://github.com/yourusername/where-do-i-publish)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
@@ -181,10 +181,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/yourusername/where-do-i-publish/issues)
-- 💬 **Feature Requests**: [GitHub Discussions](https://github.com/yourusername/where-do-i-publish/discussions)
-- 📧 **Contact**: [your.email@domain.com](mailto:your.email@domain.com)
-- 🌟 **Rate us**: [Chrome Web Store](https://chrome.google.com/webstore)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/mukul54/Scholar-Publication-Analyzer/issues)
+- 🌟 **Rate us**: [Chrome Web Store](https://chromewebstore.google.com/detail/where-do-i-publish/lpbpamoidfkbngcnahadjcleflnpcaod)
 
 **Made with ❤️ for the academic community**
 

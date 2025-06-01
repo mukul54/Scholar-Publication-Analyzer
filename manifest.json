@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Scholar Publication Analyzer",
   "version": "2.0",
-  "description": "Instantly analyze Google Scholar profiles to discover where researchers publish. Track publication venues, analyze academic patterns, and identify top journals and conferences with one click. Perfect for PhD students, researchers, and faculty.",
+  "description": "Instantly analyze Google Scholar profiles to discover where researchers publish.",
   "permissions": ["activeTab", "scripting"],
 
   "host_permissions": [
