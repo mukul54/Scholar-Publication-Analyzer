@@ -1,5 +1,3 @@
-# where-do-i-publish
-
 # 📊 Scholar Publication Analyzer
 
 > **Transform your Google Scholar profile into actionable publication insights in seconds**
