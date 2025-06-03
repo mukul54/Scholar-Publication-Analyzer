@@ -3,7 +3,6 @@
 > **Transform your Google Scholar profile into actionable publication insights in seconds**
 
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/search/scholar%20analyzer)
-[![Version](https://img.shields.io/badge/Version-2.0-brightgreen?style=for-the-badge)](https://github.com/yourusername/where-do-i-publish)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 ## 🚀 What It Does
@@ -50,7 +49,7 @@
 
 ### From Chrome Web Store (Recommended)
 
-1. Visit the [Chrome Web Store listing](#)
+1. Visit the [Chrome Web Store listing](https://chromewebstore.google.com/search/scholar%20analyzer)
 2. Click "Add to Chrome"
 3. Navigate to any Google Scholar profile
 4. Click the extension icon and hit "Analyze"
