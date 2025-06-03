@@ -81,12 +81,12 @@ Publications with venue info: 839
 Skipped (no venue info): 140
 Unique venues identified: 227
 
-🏆Rank  Venue               Count:
-1. 	    arXiv	            115
-2.	    CVPR	            109
-3.	    ICCV	            43
-4.	    IEEE TPAMI	        42
-5.	    Pattern Recognition	41
+🏆Rank      Venue               Count:
+1. 	       arXiv	              115
+2.	       CVPR	                109
+3.	       ICCV	                 43
+4.	     IEEE TPAMI	             42
+5.	    Pattern Recognition	     41
 ```
 
 ## 🧠 Smart Venue Normalization
@@ -113,12 +113,10 @@ The extension automatically recognizes and normalizes hundreds of venue variatio
 
 ## ⚡ Performance
 
-### Version 2.0 Speed Improvements
+### Version 2.0 Improvements
 
-- **Faster pagination**
+- **Pagination automation**
 - **Smart loading**
-- **Batch processing**
-- **Memory efficient**
 
 ## 🔧 Technical Details
 
@@ -160,8 +158,8 @@ We welcome contributions! Here's how you can help:
 ### Development Setup
 
 ```bash
-git clone https://github.com/yourusername/where-do-i-publish
-cd where-do-i-publish
+git clone [https://github.com/yourusername/where-do-i-publish](https://github.com/mukul54/Scholar-Publication-Analyzer)
+cd Scholar-Publication-Analyzer
 # Load extension in Chrome developer mode
 # Make changes and test locally
 ```
@@ -179,8 +177,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 - 🐛 **Bug Reports**: [GitHub Issues](https://github.com/mukul54/Scholar-Publication-Analyzer/issues)
-- 🌟 **Rate us**: [Chrome Web Store](https://chromewebstore.google.com/detail/where-do-i-publish/lpbpamoidfkbngcnahadjcleflnpcaod)
+- 🌟 **Rate us**: [Chrome Web Store](https://chromewebstore.google.com/detail/scholar-publication-analy/lpbpamoidfkbngcnahadjcleflnpcaod)
 
 **Made with ❤️ for the academic community**
 
-[⭐ Star this repo](https://github.com/mukul54/Scholar-Publication-Analyzer) | [🚀 Install Extension](https://chromewebstore.google.com/detail/where-do-i-publish/lpbpamoidfkbngcnahadjcleflnpcaod) | [📝 Report Issues](https://github.com/mukul54/Scholar-Publication-Analyzer/issues)
+[⭐ Star this repo](https://github.com/mukul54/Scholar-Publication-Analyzer) | [🚀 Install Extension](https://chromewebstore.google.com/detail/scholar-publication-analy/lpbpamoidfkbngcnahadjcleflnpcaod) | [📝 Report Issues](https://github.com/mukul54/Scholar-Publication-Analyzer/issues)
