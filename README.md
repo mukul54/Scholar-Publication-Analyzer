@@ -4,7 +4,7 @@
 
 > **Transform your Google Scholar profile into actionable publication insights in seconds**
 
-[![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/where-do-i-publish/lpbpamoidfkbngcnahadjcleflnpcaod)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/search/scholar%20analyzer)
 [![Version](https://img.shields.io/badge/Version-2.0-brightgreen?style=for-the-badge)](https://github.com/yourusername/where-do-i-publish)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
