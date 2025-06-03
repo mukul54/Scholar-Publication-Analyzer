@@ -81,12 +81,12 @@ Publications with venue info: 839
 Skipped (no venue info): 140
 Unique venues identified: 227
 
-🏆Rank      Venue               Count:
-1. 	       arXiv	              115
-2.	       CVPR	                109
-3.	       ICCV	                 43
-4.	     IEEE TPAMI	             42
-5.	    Pattern Recognition	     41
+Rank 🏆     Venue               Count:
+1.          arXiv                115
+2.          CVPR                 109
+3.          ICCV                  43
+4.          IEEE TPAMI            42
+5.          Pattern Recognition   41
 ```
 
 ## 🧠 Smart Venue Normalization
