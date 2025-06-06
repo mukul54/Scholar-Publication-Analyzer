@@ -388,7 +388,7 @@
       if (venueElement) {
         const venueText = venueElement.textContent.trim();
         const normalizedVenue = normalizeVenue(venueText);
-
+        console.log(`${venueText} -> ${normalizedVenue}`);
         if (normalizedVenue) {
           venues[normalizedVenue] = (venues[normalizedVenue] || 0) + 1;
           processedCount++;
@@ -525,7 +525,7 @@
     // ===== MACHINE LEARNING CONFERENCES =====
     // NeurIPS (formerly NIPS)
     if (
-      /neural information processing systems|neurips|nips|advances in neural information processing|conference.*?neural information processing|proceedings.*?nips|proceedings.*?neurips/i.test(
+      /neural information processing systems|neurips|nips|advances in neural information processing systems|conference.*?neural information processing systems|proceedings.*?nips|proceedings.*?neurips/i.test(
         lowerVenue
       )
     ) {
@@ -849,13 +849,20 @@
     }
 
     // ===== ADDITIONAL CONFERENCES =====
+    // PLoS One
+    if (/plos one|plos one/i.test(lowerVenue)) {
+      return "PLoS One";
+    }
+
     // CHI - Conference on Human Factors in Computing Systems
     if (/conference on human factors|chi\s|acm chi/i.test(lowerVenue)) {
       return isWorkshop ? "CHI Workshop" : "ACM CHI";
     }
 
     // SIGIR - Special Interest Group on Information Retrieval
-    if (/sigir|information retrieval/i.test(lowerVenue)) {
+    if (
+      /sigir|special interest group on information retrieval/i.test(lowerVenue)
+    ) {
       return isWorkshop ? "SIGIR Workshop" : "ACM SIGIR";
     }
 
@@ -923,6 +930,18 @@
       /^(proceedings of the |proceedings of |proceedings |proc\.?\s+|the\s+)/i,
       ""
     );
+
+    // Remove year patterns (4 digits) at the beginning
+    simplifiedVenue = simplifiedVenue.replace(/^\d{4}\s+/, "");
+
+    // Remove ordinal numbers at the beginning (1st, 2nd, 3rd, 4th, etc.)
+    simplifiedVenue = simplifiedVenue.replace(/^\d+(?:st|nd|rd|th)\s+/i, "");
+
+    // Remove trailing year and comma if present
+    simplifiedVenue = simplifiedVenue.replace(/,\s*\d{4}$/, "");
+
+    // Clean up any extra whitespace
+    simplifiedVenue = simplifiedVenue.trim();
 
     // Remove common suffixes
     simplifiedVenue = simplifiedVenue.replace(/\s+(proceedings|proc\.?)$/i, "");
