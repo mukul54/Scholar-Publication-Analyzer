@@ -181,7 +181,7 @@
 
   "web_accessible_resources": [
     {
-      "resources": ["popup.html", "popup.js", "images/*"],
+      "resources": ["popup.html", "popup.js", "images/*", "venue-mapping.json"],
       "matches": [
         "https://scholar.google.com/*",
         "https://scholar.google.ae/*",

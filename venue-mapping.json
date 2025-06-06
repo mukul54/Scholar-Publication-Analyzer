@@ -1,0 +1,512 @@
+{
+  "meta": {
+    "version": "1.0",
+    "lastUpdated": "2025-06-06",
+    "description": "Venue normalization mapping for Google Scholar publication analysis",
+    "sources": [
+      "Google Scholar Top Venues 2024",
+      "DBLP Computer Science Bibliography",
+      "CSRankings.org",
+      "IEEE Computer Society"
+    ]
+  },
+  "categories": {
+    "computer_vision": {
+      "display_name": "Computer Vision & Pattern Recognition",
+      "venues": {
+        "CVPR": {
+          "full_name": "IEEE/CVF Conference on Computer Vision and Pattern Recognition",
+          "type": "conference",
+          "patterns": [
+            "computer vision and pattern recognition",
+            "cvpr",
+            "cvf.*?computer vision and pattern",
+            "proceedings.*?cvpr",
+            "ieee.*?cvf.*?computer vision and pattern recognition",
+            "ieee.*?computer.*?society.*?conference.*?computer vision and pattern",
+            "proceedings.*?ieee.*?conference.*?computer vision and pattern",
+            "ieee.*?conference.*?computer vision and pattern",
+            "\\d{4}.*?proceedings.*?ieee.*?conference.*?computer vision and pattern",
+            "\\d{4}.*?ieee.*?computer.*?society.*?conference.*?computer vision"
+          ]
+        },
+        "ICCV": {
+          "full_name": "IEEE International Conference on Computer Vision",
+          "type": "conference",
+          "patterns": [
+            "international conference on computer vision",
+            "iccv",
+            "proceedings.*?iccv",
+            "ieee.*?international conference on computer vision",
+            "ieee.*?international.*?conference.*?computer vision",
+            "proceedings.*?ieee.*?international.*?conference.*?computer vision"
+          ]
+        },
+        "ECCV": {
+          "full_name": "European Conference on Computer Vision",
+          "type": "conference",
+          "patterns": [
+            "european conference on computer vision",
+            "eccv",
+            "proceedings.*?eccv",
+            "european.*?conference.*?computer vision"
+          ]
+        },
+        "WACV": {
+          "full_name": "IEEE Winter Conference on Applications of Computer Vision",
+          "type": "conference",
+          "patterns": [
+            "winter conference on applications of computer vision",
+            "wacv",
+            "ieee.*?cvf.*?winter conference",
+            "cvf.*?winter conference"
+          ]
+        },
+        "BMVC": {
+          "full_name": "British Machine Vision Conference",
+          "type": "conference",
+          "patterns": ["british machine vision conference", "bmvc"]
+        },
+        "ACCV": {
+          "full_name": "Asian Conference on Computer Vision",
+          "type": "conference",
+          "patterns": ["asian conference on computer vision", "accv"]
+        }
+      }
+    },
+    "machine_learning": {
+      "display_name": "Machine Learning & AI",
+      "venues": {
+        "NeurIPS": {
+          "full_name": "Conference on Neural Information Processing Systems",
+          "type": "conference",
+          "patterns": [
+            "neural information processing systems",
+            "neurips",
+            "nips",
+            "advances in neural information processing systems",
+            "conference.*?neural information processing systems",
+            "proceedings.*?nips",
+            "proceedings.*?neurips"
+          ]
+        },
+        "ICML": {
+          "full_name": "International Conference on Machine Learning",
+          "type": "conference",
+          "patterns": [
+            "international conference on machine learning",
+            "icml",
+            "proceedings.*?icml"
+          ]
+        },
+        "ICLR": {
+          "full_name": "International Conference on Learning Representations",
+          "type": "conference",
+          "patterns": [
+            "international conference on learning representations",
+            "iclr"
+          ]
+        },
+        "AISTATS": {
+          "full_name": "International Conference on Artificial Intelligence and Statistics",
+          "type": "conference",
+          "patterns": [
+            "artificial intelligence and statistics",
+            "aistats",
+            "international conference on artificial intelligence and statistics"
+          ]
+        }
+      }
+    },
+    "artificial_intelligence": {
+      "display_name": "Artificial Intelligence",
+      "venues": {
+        "AAAI": {
+          "full_name": "AAAI Conference on Artificial Intelligence",
+          "type": "conference",
+          "patterns": [
+            "aaai",
+            "association for the advancement of artificial intelligence",
+            "national conference on artificial intelligence",
+            "proceedings.*?aaai"
+          ]
+        },
+        "IJCAI": {
+          "full_name": "International Joint Conference on Artificial Intelligence",
+          "type": "conference",
+          "patterns": [
+            "international joint conference on artificial intelligence",
+            "ijcai"
+          ]
+        },
+        "UAI": {
+          "full_name": "Conference on Uncertainty in Artificial Intelligence",
+          "type": "conference",
+          "patterns": ["uncertainty in artificial intelligence", "uai"]
+        }
+      }
+    },
+    "natural_language_processing": {
+      "display_name": "Natural Language Processing",
+      "venues": {
+        "ACL": {
+          "full_name": "Annual Meeting of the Association for Computational Linguistics",
+          "type": "conference",
+          "patterns": [
+            "association for computational linguistics",
+            "(?<!na)(?<!ea)acl(?!\\w)",
+            "proceedings.*?acl"
+          ],
+          "negative_patterns": ["naacl", "eacl"]
+        },
+        "NAACL": {
+          "full_name": "North American Chapter of the Association for Computational Linguistics",
+          "type": "conference",
+          "patterns": ["north american chapter", "naacl", "findings.*?naacl"]
+        },
+        "EMNLP": {
+          "full_name": "Conference on Empirical Methods in Natural Language Processing",
+          "type": "conference",
+          "patterns": [
+            "empirical methods in natural language processing",
+            "emnlp"
+          ]
+        },
+        "CoNLL": {
+          "full_name": "Conference on Computational Natural Language Learning",
+          "type": "conference",
+          "patterns": [
+            "conference on computational natural language learning",
+            "conll"
+          ]
+        },
+        "EACL": {
+          "full_name": "Conference of the European Chapter of the Association for Computational Linguistics",
+          "type": "conference",
+          "patterns": ["european chapter.*?acl", "eacl"]
+        },
+        "COLING": {
+          "full_name": "International Conference on Computational Linguistics",
+          "type": "conference",
+          "patterns": [
+            "international conference on computational linguistics",
+            "coling"
+          ]
+        }
+      }
+    },
+    "data_mining_web": {
+      "display_name": "Data Mining & Web",
+      "venues": {
+        "ACM SIGKDD": {
+          "full_name": "ACM SIGKDD Conference on Knowledge Discovery and Data Mining",
+          "type": "conference",
+          "patterns": [
+            "sigkdd",
+            "knowledge discovery and data mining",
+            "(?<!\\w)kdd(?!\\w)",
+            "proceedings.*?kdd"
+          ]
+        },
+        "ICDM": {
+          "full_name": "IEEE International Conference on Data Mining",
+          "type": "conference",
+          "patterns": ["international conference on data mining", "icdm"]
+        },
+        "WWW": {
+          "full_name": "The Web Conference",
+          "type": "conference",
+          "patterns": [
+            "world wide web conference",
+            "(?<!\\w)www(?!\\w)",
+            "international world wide web"
+          ]
+        }
+      }
+    },
+    "robotics": {
+      "display_name": "Robotics",
+      "venues": {
+        "ICRA": {
+          "full_name": "IEEE International Conference on Robotics and Automation",
+          "type": "conference",
+          "patterns": [
+            "international conference on robotics and automation",
+            "icra",
+            "ieee.*?robotics and automation"
+          ]
+        },
+        "IROS": {
+          "full_name": "IEEE/RSJ International Conference on Intelligent Robots and Systems",
+          "type": "conference",
+          "patterns": [
+            "intelligent robots and systems",
+            "iros",
+            "ieee.*?rsj.*?intelligent robots"
+          ]
+        }
+      }
+    },
+    "signal_processing": {
+      "display_name": "Signal Processing",
+      "venues": {
+        "ICASSP": {
+          "full_name": "IEEE International Conference on Acoustics, Speech and Signal Processing",
+          "type": "conference",
+          "patterns": [
+            "acoustics.*?speech.*?signal processing",
+            "icassp",
+            "international conference on acoustics"
+          ]
+        },
+        "ICIP": {
+          "full_name": "IEEE International Conference on Image Processing",
+          "type": "conference",
+          "patterns": ["international conference on image processing", "icip"]
+        },
+        "INTERSPEECH": {
+          "full_name": "INTERSPEECH Conference",
+          "type": "conference",
+          "patterns": ["interspeech"]
+        }
+      }
+    },
+    "medical_imaging": {
+      "display_name": "Medical Imaging",
+      "venues": {
+        "MICCAI": {
+          "full_name": "Medical Image Computing and Computer-Assisted Intervention",
+          "type": "conference",
+          "patterns": [
+            "medical image computing and computer.assisted intervention",
+            "miccai",
+            "international conference on medical image computing and computer.assisted",
+            "medical image computing and computer.assisted"
+          ]
+        },
+        "IPMI": {
+          "full_name": "Information Processing in Medical Imaging",
+          "type": "conference",
+          "patterns": ["information processing in medical imaging", "ipmi"]
+        }
+      }
+    },
+    "graphics_visualization": {
+      "display_name": "Graphics & Visualization",
+      "venues": {
+        "SIGGRAPH": {
+          "full_name": "ACM SIGGRAPH Conference",
+          "type": "conference",
+          "patterns": [
+            "siggraph",
+            "computer graphics and interactive techniques"
+          ]
+        },
+        "IEEE VIS": {
+          "full_name": "IEEE Visualization Conference",
+          "type": "conference",
+          "patterns": [
+            "ieee visualization",
+            "vis\\s",
+            "visualization conference"
+          ]
+        }
+      }
+    },
+    "hci": {
+      "display_name": "Human-Computer Interaction",
+      "venues": {
+        "ACM CHI": {
+          "full_name": "ACM Conference on Human Factors in Computing Systems",
+          "type": "conference",
+          "patterns": ["conference on human factors", "chi\\s", "acm chi"]
+        }
+      }
+    },
+    "information_retrieval": {
+      "display_name": "Information Retrieval",
+      "venues": {
+        "ACM SIGIR": {
+          "full_name": "ACM SIGIR Conference on Research and Development in Information Retrieval",
+          "type": "conference",
+          "patterns": [
+            "sigir",
+            "special interest group on information retrieval"
+          ]
+        }
+      }
+    },
+    "journals": {
+      "display_name": "Journals",
+      "venues": {
+        "IEEE TPAMI": {
+          "full_name": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+          "type": "journal",
+          "patterns": [
+            "transactions on pattern analysis and machine intelligence",
+            "tpami",
+            "ieee.*?pattern analysis"
+          ]
+        },
+        "IEEE TIP": {
+          "full_name": "IEEE Transactions on Image Processing",
+          "type": "journal",
+          "patterns": ["transactions on image processing", "(?<!\\w)tip(?!\\w)"]
+        },
+        "IEEE TNN": {
+          "full_name": "IEEE Transactions on Neural Networks and Learning Systems",
+          "type": "journal",
+          "patterns": ["transactions on neural networks", "tnn", "tnnls"]
+        },
+        "IEEE TCYB": {
+          "full_name": "IEEE Transactions on Cybernetics",
+          "type": "journal",
+          "patterns": ["transactions on cybernetics", "tcyb"]
+        },
+        "IEEE TMM": {
+          "full_name": "IEEE Transactions on Multimedia",
+          "type": "journal",
+          "patterns": ["transactions on multimedia", "tmm"]
+        },
+        "IEEE Access": {
+          "full_name": "IEEE Access",
+          "type": "journal",
+          "patterns": ["ieee access"]
+        },
+        "IJCV": {
+          "full_name": "International Journal of Computer Vision",
+          "type": "journal",
+          "patterns": ["international journal of computer vision", "ijcv"]
+        },
+        "JMLR": {
+          "full_name": "Journal of Machine Learning Research",
+          "type": "journal",
+          "patterns": ["journal of machine learning research", "jmlr"]
+        },
+        "Machine Learning Journal": {
+          "full_name": "Machine Learning Journal",
+          "type": "journal",
+          "patterns": ["machine learning journal", "^machine learning$"]
+        },
+        "CVIU": {
+          "full_name": "Computer Vision and Image Understanding",
+          "type": "journal",
+          "patterns": ["computer vision and image understanding", "cviu"]
+        },
+        "Pattern Recognition": {
+          "full_name": "Pattern Recognition",
+          "type": "journal",
+          "patterns": ["pattern recognition\\s", "pattern recognition$"]
+        },
+        "Medical Image Analysis": {
+          "full_name": "Medical Image Analysis",
+          "type": "journal",
+          "patterns": ["medical image analysis"]
+        },
+        "Neurocomputing": {
+          "full_name": "Neurocomputing",
+          "type": "journal",
+          "patterns": ["neurocomputing"]
+        },
+        "Science": {
+          "full_name": "Science",
+          "type": "journal",
+          "patterns": ["^science\\s", "^\\s*science$"]
+        },
+        "Nature": {
+          "full_name": "Nature",
+          "type": "journal",
+          "patterns": ["^nature$"]
+        },
+        "Nature Communications": {
+          "full_name": "Nature Communications",
+          "type": "journal",
+          "patterns": ["nature communications"]
+        },
+        "Nature Machine Intelligence": {
+          "full_name": "Nature Machine Intelligence",
+          "type": "journal",
+          "patterns": ["nature machine intelligence"]
+        },
+        "PNAS": {
+          "full_name": "Proceedings of the National Academy of Sciences",
+          "type": "journal",
+          "patterns": [
+            "proceedings of the national academy of sciences",
+            "pnas"
+          ]
+        },
+        "PLoS One": {
+          "full_name": "PLoS One",
+          "type": "journal",
+          "patterns": ["plos one", "plos one"]
+        }
+      }
+    },
+    "preprints_other": {
+      "display_name": "Preprints & Other",
+      "venues": {
+        "arXiv": {
+          "full_name": "arXiv Preprint Server",
+          "type": "preprint",
+          "patterns": ["arxiv", "ar xiv", "corr"]
+        },
+        "bioRxiv": {
+          "full_name": "bioRxiv Preprint Server",
+          "type": "preprint",
+          "patterns": ["biorxiv"]
+        },
+        "US Patents": {
+          "full_name": "US Patents",
+          "type": "patent",
+          "patterns": ["patent", "us patent"]
+        },
+        "Available at SSRN": {
+          "full_name": "Social Science Research Network",
+          "type": "preprint",
+          "patterns": ["ssrn", "social science research network"]
+        },
+        "Springer": {
+          "full_name": "Springer Publications",
+          "type": "publisher",
+          "patterns": ["springer", "lecture notes in computer science", "lncs"]
+        },
+        "MIT Press": {
+          "full_name": "MIT Press",
+          "type": "publisher",
+          "patterns": ["mit press"]
+        }
+      }
+    }
+  },
+  "workshop_detection": {
+    "patterns": ["workshop", "ws\\b"],
+    "suffix": " Workshop"
+  },
+  "preprocessing": {
+    "remove_patterns": [
+      "\\s*,\\s*\\d{4}(\\s|$)",
+      "\\s*\\d{4}\\s*$",
+      "^\\d{4}\\s+",
+      "\\s*,\\s*\\d+(\\s*\\(\\d+\\))?(\\s|$)",
+      "\\s*,\\s*pp?\\s*[\\d-]+",
+      "\\s*,\\s*\\d+-\\d+\\s*$",
+      "^(proceedings of the |proceedings of |proceedings )",
+      "\\s+(proceedings|proc\\.?)$",
+      "\\s+\\d{4}$",
+      "\\s+\\d+$"
+    ],
+    "skip_short_venues": 3,
+    "skip_generic_terms": [
+      "the",
+      "a",
+      "an",
+      "in",
+      "on",
+      "of",
+      "and",
+      "for",
+      "with"
+    ]
+  }
+}
